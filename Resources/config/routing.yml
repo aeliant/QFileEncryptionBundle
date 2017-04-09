@@ -1,0 +1,3 @@
+q_file_encryption_homepage:
+    path:     /
+    defaults: { _controller: QFileEncryptionBundle:Default:index }
