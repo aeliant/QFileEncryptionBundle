@@ -9,7 +9,7 @@ following command to download the latest stable version of this bundle:
 
 .. code-block:: terminal
 
-    $ composer require <package-name> "~1"
+    $ composer require querdos/qfileencryption "~1"
 
 This command requires you to have Composer installed globally, as explained
 in the `installation chapter`_ of the Composer documentation.
@@ -33,7 +33,9 @@ in the ``app/AppKernel.php`` file of your project:
             $bundles = array(
                 // ...
 
-                new <vendor>\<bundle-name>\<bundle-long-name>(),
+                new Querdos\QFileEncryptionBundle\QFileEncryptionBundle(),
+
+                // ...
             );
 
             // ...
