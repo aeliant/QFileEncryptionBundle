@@ -1,0 +1,26 @@
+{
+  "name": "querdos/qfileencryptionbundle",
+  "description": "A bundle for file encryption under symfony",
+  "authors": [{
+    "name": "Hamza ESSAYEGH",
+    "email": "hamza.essayegh@protonmail.com"
+    }],
+  "keywords": [
+    "security encryption cryptography file doctrine database symfony"
+  ],
+  "license": [
+    "MIT"
+  ],
+  "require": {
+
+  },
+  "autoload": {
+    "psr-0": {
+      "Querdos\\QFileEncryptionBundle": ""
+    }
+  },
+  "target-dir": "Querdos/QFileEncryptionBundle",
+  "repositories": [{
+
+  }]
+}
