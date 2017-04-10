@@ -51,7 +51,6 @@ class QFile
         $this->path          = $path;
     }
 
-
     /**
      * @return int
      */

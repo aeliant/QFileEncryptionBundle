@@ -14,6 +14,8 @@ use Querdos\QFileEncryptionBundle\Entity\QKey;
 use Querdos\QFileEncryptionBundle\Manager\QFileManager;
 use Querdos\QFileEncryptionBundle\Manager\QKeyManager;
 use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
 use Symfony\Component\Security\Core\Tests\Encoder\PasswordEncoder;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -113,7 +115,7 @@ class AsymetricUtil
         // creating new entity
         $this->qkeyManager->create(new QKey(
             $recipient,
-            $this->passwordEncoder->encodePassword($user, $passphrase),
+            password_hash($passphrase, PASSWORD_BCRYPT),
             $user->getUsername()
         ));
     }
@@ -158,6 +160,31 @@ class AsymetricUtil
             $newFileName,
             $path
         ));
+    }
+
+    /**
+     * Decrypt the given file
+     *
+     * @param QFile  $qfile
+     * @param QKey   $qkey
+     * @param string $passphrase
+     *
+     * @return BinaryFileResponse|null
+     */
+    public function decrypt_file(QFile $qfile, QKey $qkey, $passphrase)
+    {
+        // checking passphrase
+        if (!password_verify($passphrase, $qkey->getPassphrase())) {
+            throw new Exception("Invalid passphrase");
+        }
+
+        $userdir = "{$this->gnupg_home}/{$qkey->getUsername()}";
+        $cmd = "echo \"{$passphrase}\" | gpg --homedir {$userdir} --trust-model always --decrypt --recipient {$qkey->getRecipient()} --passphrase-fd 0 --output /tmp/{$qfile->getOriginalName()} {$qfile->getPath()}/{$qfile->getFilename()}.enc";
+        shell_exec($cmd);
+
+        $response = new BinaryFileResponse("/tmp/{$qfile->getOriginalName()}");
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $qfile->getOriginalName());
+        return $response;
     }
 
     /**
