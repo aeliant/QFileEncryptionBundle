@@ -10,6 +10,11 @@ Querdos\QFileEncryptionBundle\Entity\QKey:
                 strategy: AUTO
 
     fields:
+        username:
+            type:         string
+            length:       125
+            nullable:     false
+            unique:       true
         recipient:
             type:         string
             length:       125
