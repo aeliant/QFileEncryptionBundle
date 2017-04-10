@@ -8,8 +8,6 @@
 
 namespace Querdos\QFileEncryptionBundle\Entity;
 
-use Symfony\Component\Config\Definition\Exception\Exception;
-
 /**
  * Class QFile
  *
