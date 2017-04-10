@@ -43,8 +43,6 @@ class AsymetricUtil
      */
     public function generate_key($recipient, $passphrase, UserInterface $user)
     {
-//        $this->passwordEncoder->encodePassword()
-
         // checking recipient <> null
         if (null === $recipient || 0 == strlen($recipient)) {
             throw new Exception("Recipient cannot be null or empty. (value = {$recipient})");
@@ -60,13 +58,17 @@ class AsymetricUtil
             throw new Exception("Username cannot be null or empty. (value = {$user->getUsername()})");
         }
 
+        // checking that user hasn't an existing key pair
+        if (null !== $this->qkeyManager->findByUsername($user->getUsername())) {
+            throw new Exception("User already have a saved key pair.");
+        }
+
         // dirname in temp directory
         $dirname = sprintf("/tmp/gpg_%s", uniqid());
         mkdir($dirname);
 
         // creating dir for user and setting correct permission
-        mkdir($this->gnupg_home . "/{$user->getUsername()}");
-        chmod($this->gnupg_home . "/{$user->getUsername()}", 0700);
+        mkdir("{$this->gnupg_home}/{$user->getUsername()}", 0700);
 
         // generate the batch file for GPG
         $batchFile = fopen("$dirname/batch_gpg", "a");
@@ -87,21 +89,54 @@ class AsymetricUtil
         // closing file
         fclose($batchFile);
 
-        // preparing command for gpg
-        $cmd = sprintf(
-            "gpg --batch --gen-key %s/batch_gpg",
-                $dirname
-        );
-        shell_exec($cmd);
+        // generating keys
+        shell_exec("gpg --batch --gen-key {$dirname}/batch_gpg");
 
-        unlink("$dirname/batch_gpg");
+        // removing temporary batch file and directory
+        unlink("{$dirname}/batch_gpg");
         rmdir($dirname);
+
+        // importing keys
+        $user_dir = "{$this->gnupg_home}/{$user->getUsername()}";
+        shell_exec("gpg --homedir $user_dir --import {$user_dir}/{$user->getUsername()}.pub");
+        shell_exec("gpg --homedir $user_dir --import {$user_dir}/{$user->getUsername()}.sec");
 
         // creating new entity
         $this->qkeyManager->create(new QKey(
             $recipient,
-            $this->passwordEncoder->encodePassword($user, $passphrase)
+            $this->passwordEncoder->encodePassword($user, $passphrase),
+            $user->getUsername()
         ));
+    }
+
+    /**
+     * Encrypt the given file
+     *
+     * @param string $filePath
+     * @param QKey   $qkey
+     */
+    public function encrypt_file($filePath, QKey $qkey)
+    {
+        // checking file path
+        if (null === $filePath || !file_exists($filePath)) {
+            throw new Exception("No valid file specified (value = {$filePath})");
+        }
+
+        // checking user has a key pair
+        if (null === $this->qkeyManager->findByUsername($qkey->getUsername())) {
+            throw new Exception("No key pair associated with {$qkey->getUsername()}");
+        }
+
+        // checking recipient
+        if (null === $qkey->getRecipient()) {
+            throw new Exception("No recipient specified");
+        }
+
+        // encrypting
+        $userdir  = "{$this->gnupg_home}/{$qkey->getUsername()}";
+
+        shell_exec("gpg --homedir {$userdir} --trust-model always --encrypt --recipient {$qkey->getRecipient()} --output {$filePath}.enc {$filePath}");
+        unlink($filePath);
     }
 
     /**
