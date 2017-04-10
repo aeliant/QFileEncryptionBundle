@@ -1,0 +1,24 @@
+Querdos\QFileEncryptionBundle\Entity\QKey:
+    type:             entity
+    table:            qfe_key
+    repositoryClass:  Querdos\QFileEncryptionBundle\Repository\QKeyRepository
+    id:
+        id:
+            type:         integer
+            id:           true
+            generator:
+                strategy: AUTO
+
+    fields:
+        recipient:
+            type:         string
+            length:       125
+            nullable:     false
+            unique:       true
+
+        passphrase:
+            type:         text
+            nullable:     false
+            unique:       false
+
+    lifecycleCallbacks: {}

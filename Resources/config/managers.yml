@@ -1,0 +1,6 @@
+services:
+    qfe.manager.qkey:
+        class: Querdos\QFileEncryptionBundle\Manager\QKeyManager
+        calls:
+            - [ setRepository,    ['@qfe.repository.qkey'] ]
+            - [ setEntityManager, ['@doctrine.orm.entity_manager']]

@@ -1,0 +1,12 @@
+Querdos\QFileEncryptionBundle\Entity\QFile:
+    type:             entity
+    table:            qfe_file
+    repositoryClass:  Querdos\QFileEncryptionBundle\Repository\QFileRepository
+    id:
+        id:
+            type:         integer
+            id:           true
+            generator:
+                strategy: AUTO
+
+    lifecycleCallbacks: {}
