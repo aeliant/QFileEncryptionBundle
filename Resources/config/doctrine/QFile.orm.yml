@@ -8,5 +8,21 @@ Querdos\QFileEncryptionBundle\Entity\QFile:
             id:           true
             generator:
                 strategy: AUTO
+    fields:
+        original_name:
+            type:         string
+            length:       255
+            unique:       false
+            nullable:     false
+        filename:
+            type:         string
+            length:       255
+            unique:       true
+            nullable:     false
+        path:
+            type:         string
+            length:       255
+            unique:       false
+            nullable:     false
 
     lifecycleCallbacks: {}

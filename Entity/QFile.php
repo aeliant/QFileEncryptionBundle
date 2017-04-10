@@ -9,7 +9,6 @@
 namespace Querdos\QFileEncryptionBundle\Entity;
 
 use Symfony\Component\Config\Definition\Exception\Exception;
-use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * Class QFile
@@ -24,23 +23,34 @@ class QFile
     private $id;
 
     /**
-     * @var File
+     * @var string
      */
-    private $file;
+    private $original_name;
+
+    /**
+     * @var string
+     */
+    private $filename;
+
+    /**
+     * @var string
+     */
+    private $path;
 
     /**
      * QFile constructor.
      *
-     * @param File $file
+     * @param string $original_name
+     * @param string $filename
+     * @param string $path
      */
-    public function __construct(File $file)
+    public function __construct($original_name = null, $filename = null, $path = null)
     {
-        if (null === $file) {
-            throw new Exception("No file specified");
-        }
-
-        $this->file = $file;
+        $this->original_name = $original_name;
+        $this->filename      = $filename;
+        $this->path          = $path;
     }
+
 
     /**
      * @return int
@@ -62,21 +72,59 @@ class QFile
     }
 
     /**
-     * @return File
+     * @return string
      */
-    public function getFile()
+    public function getOriginalName()
     {
-        return $this->file;
+        return $this->original_name;
     }
 
     /**
-     * @param File $file
+     * @param string $original_name
      *
      * @return QFile
      */
-    public function setFile($file)
+    public function setOriginalName($original_name)
     {
-        $this->file = $file;
+        $this->original_name = $original_name;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFilename()
+    {
+        return $this->filename;
+    }
+
+    /**
+     * @param string $filename
+     *
+     * @return QFile
+     */
+    public function setFilename($filename)
+    {
+        $this->filename = $filename;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return QFile
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
         return $this;
     }
 }

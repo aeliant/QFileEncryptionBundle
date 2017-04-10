@@ -1,4 +1,10 @@
 services:
+    qfe.manager.qfile:
+        class: Querdos\QFileEncryptionBundle\Manager\QFileManager
+        calls:
+            - [ setRepository,    [ '@qfe.repository.qfile' ]]
+            - [ setEntityManager, [ '@doctrine.orm.entity_manager' ]]
+
     qfe.manager.qkey:
         class: Querdos\QFileEncryptionBundle\Manager\QKeyManager
         calls:

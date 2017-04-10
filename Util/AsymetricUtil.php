@@ -9,12 +9,16 @@
 namespace Querdos\QFileEncryptionBundle\Util;
 
 
+use Querdos\QFileEncryptionBundle\Entity\QFile;
 use Querdos\QFileEncryptionBundle\Entity\QKey;
+use Querdos\QFileEncryptionBundle\Manager\QFileManager;
 use Querdos\QFileEncryptionBundle\Manager\QKeyManager;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
 use Symfony\Component\Security\Core\Tests\Encoder\PasswordEncoder;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints\DateTime;
+use Symfony\Component\VarDumper\VarDumper;
 
 class AsymetricUtil
 {
@@ -27,6 +31,11 @@ class AsymetricUtil
      * @var QKeyManager
      */
     private $qkeyManager;
+
+    /**
+     * @var QFileManager
+     */
+    private $qFileManager;
 
     /**
      * @var UserPasswordEncoder
@@ -133,10 +142,22 @@ class AsymetricUtil
         }
 
         // encrypting
-        $userdir  = "{$this->gnupg_home}/{$qkey->getUsername()}";
+        preg_match('/(.*)\/(.*)$/', $filePath, $matches);
 
-        shell_exec("gpg --homedir {$userdir} --trust-model always --encrypt --recipient {$qkey->getRecipient()} --output {$filePath}.enc {$filePath}");
+        $path        = $matches[1];
+        $oldFileName = $matches[2];
+        $newFileName = uniqid((new \DateTime())->format('mdY'));
+        $userdir     = "{$this->gnupg_home}/{$qkey->getUsername()}";
+
+        shell_exec("gpg --homedir {$userdir} --trust-model always --encrypt --recipient {$qkey->getRecipient()} --output {$path}/{$newFileName}.enc {$filePath}");
         unlink($filePath);
+
+        // creating QFile
+        $this->qFileManager->create(new QFile(
+            $oldFileName,
+            $newFileName,
+            $path
+        ));
     }
 
     /**
@@ -161,5 +182,10 @@ class AsymetricUtil
     public function setPasswordEncoder($encoder)
     {
         $this->passwordEncoder = $encoder;
+    }
+
+    public function setQFileManager($manager)
+    {
+        $this->qFileManager = $manager;
     }
 }
