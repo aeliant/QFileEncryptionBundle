@@ -7,4 +7,4 @@ services:
     qfe.repository.qkey:
         class:      Querdos\QFileEncryptionBundle\Repository\QKeyRepository
         factory:    [ "@doctrine.orm.entity_manager", "getRepository" ]
-        arguments:  [ "QFileEncryptionBundle:QFile"]
+        arguments:  [ "QFileEncryptionBundle:QKey"]
