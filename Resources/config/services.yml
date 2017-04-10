@@ -1,4 +1,7 @@
 services:
-#    q_file_encryption.example:
-#        class: Querdos\QFileEncryptionBundle\Example
-#        arguments: ["@service_id", "plain_value", "%parameter%"]
+    q_fe.util.asymetric:
+        class:      Querdos\QFileEncryptionBundle\Util\AsymetricUtil
+        calls:
+            - [ setGnupgHome,       ['%q_file_encryption.gnupg_home%']]
+            - [ setQKeyManager,     ['@qfe.manager.qkey']]
+            - [ setPasswordEncoder, ['@security.user_password_encoder.generic']]
