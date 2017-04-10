@@ -8,9 +8,6 @@
 
 namespace Querdos\QFileEncryptionBundle\Manager;
 
-
-use Querdos\QFileEncryptionBundle\Repository\BaseManager;
-
 class QKeyManager extends BaseManager
 {
     /**

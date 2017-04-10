@@ -6,7 +6,7 @@
  * Time: 1:35 PM
  */
 
-namespace Querdos\QFileEncryptionBundle\Repository;
+namespace Querdos\QFileEncryptionBundle\Manager;
 
 
 use Doctrine\ORM\EntityManager;
@@ -69,6 +69,18 @@ class BaseManager
     public function all()
     {
         return $this->repository->findAll();
+    }
+
+    /**
+     * Return an entity by its id
+     *
+     * @param $id
+     *
+     * @return null|object
+     */
+    public function readById($id)
+    {
+        return $this->repository->find($id);
     }
 
     /**

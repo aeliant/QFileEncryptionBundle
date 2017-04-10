@@ -8,12 +8,6 @@
 
 namespace Querdos\QFileEncryptionBundle\Manager;
 
-
-use Doctrine\ORM\EntityManager;
-use Querdos\QFileEncryptionBundle\Entity\QFile;
-use Querdos\QFileEncryptionBundle\Repository\BaseManager;
-use Querdos\QFileEncryptionBundle\Repository\QFileRepository;
-
 class QFileManager extends BaseManager
 {
     //
