@@ -11,22 +11,15 @@ namespace Querdos\QFileEncryptionBundle\Util;
 
 use Querdos\QFileEncryptionBundle\Entity\QFile;
 use Querdos\QFileEncryptionBundle\Entity\QKey;
-use Querdos\QFileEncryptionBundle\Manager\QFileManager;
 use Querdos\QFileEncryptionBundle\Manager\QKeyManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Component\BrowserKit\Response;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Kernel;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\ProcessBuilder;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\VarDumper\VarDumper;
 
 class AsymetricUtil
 {
@@ -36,24 +29,9 @@ class AsymetricUtil
     private $kernel;
 
     /**
-     * @var string
-     */
-    private $gnupg_home;
-
-    /**
      * @var QKeyManager
      */
     private $qkeyManager;
-
-    /**
-     * @var QFileManager
-     */
-    private $qFileManager;
-
-    /**
-     * @var UserPasswordEncoder
-     */
-    private $passwordEncoder;
 
     /**
      * Generate a keypair with the gien recipient,
@@ -186,38 +164,6 @@ class AsymetricUtil
         $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $qfile->getOriginalName());
 
         return $response;
-    }
-
-    /**
-     * @param $gnupg_home
-     */
-    public function setGnupgHome($gnupg_home)
-    {
-        $this->gnupg_home = $gnupg_home;
-    }
-
-    /**
-     * @param QKeyManager $manager
-     */
-    public function setQKeyManager($manager)
-    {
-        $this->qkeyManager = $manager;
-    }
-
-    /**
-     * @param UserPasswordEncoder $encoder
-     */
-    public function setPasswordEncoder($encoder)
-    {
-        $this->passwordEncoder = $encoder;
-    }
-
-    /**
-     * @param QFileManager $manager
-     */
-    public function setQFileManager($manager)
-    {
-        $this->qFileManager = $manager;
     }
 
     /**

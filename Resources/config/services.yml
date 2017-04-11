@@ -3,7 +3,3 @@ services:
         class:      Querdos\QFileEncryptionBundle\Util\AsymetricUtil
         calls:
             - [ setKernel,          [ '@kernel' ]]
-            - [ setGnupgHome,       [ '%q_file_encryption.gnupg_home%']]
-            - [ setQKeyManager,     [ '@qfe.manager.qkey']]
-            - [ setQFileManager,    [ '@qfe.manager.qfile' ]]
-            - [ setPasswordEncoder, [ '@security.user_password_encoder.generic']]
