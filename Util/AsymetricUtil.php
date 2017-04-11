@@ -85,121 +85,24 @@ class AsymetricUtil
             throw new Exception("User already have a saved key pair.");
         }
 
-        // dirname in temp directory
-        $dirname = sprintf("/tmp/gpg_%s", uniqid());
-        mkdir($dirname);
+        // creating application with current kernel
+        $application = new Application($this->kernel);
+        $application->setAutoExit(false);
 
-        // creating dir for user and setting correct permission
-        // TODO: Check if dir exists and abort if so
-        mkdir("{$this->gnupg_home}/{$user->getUsername()}", 0700);
-
-        // generate the batch file for GPG
-        $batchFile = fopen("$dirname/batch_gpg", "a");
-
-        fwrite($batchFile, "Key-Type: DSA\n");
-        fwrite($batchFile, "Key-Length: 2048\n");
-        fwrite($batchFile, "Subkey-Type: ELG-E\n");
-        fwrite($batchFile, "Subkey-Length: 2048\n");
-        fwrite($batchFile, "Name-Real: {$user->getUsername()}\n");
-        fwrite($batchFile, "Name-Comment: User {$user->getUsername()} key pair\n");
-        fwrite($batchFile, "Name-Email: {$recipient}\n");
-        fwrite($batchFile, "Expire-Date: 0\n");
-        fwrite($batchFile, "%no-protection\n"); // private key will be encrypted using AES
-//        fwrite($batchFile, "%pubring {$this->gnupg_home}/{$user->getUsername()}/{$user->getUsername()}.pub\n");
-//        fwrite($batchFile, "%secring {$this->gnupg_home}/{$user->getUsername()}/{$user->getUsername()}.sec\n");
-        fwrite($batchFile, "%commit\n");
-
-        // closing file
-        fclose($batchFile);
-
-        // creating processes builder
-        $processBuilder = new ProcessBuilder();
-
-        $processBuilder
-            ->setPrefix("/usr/bin/gpg")
-            ->setWorkingDirectory($dirname)
-            ->setArguments(array(
-                "--batch",
-                "--gen-key",
-                "{$dirname}/batch_gpg"
-            ))
-        ;
-
-        // trying to generate the keys
-        $process = $processBuilder->getProcess();
-        try {
-            $process->mustRun();
-die;
-            // removing temporary batch file and directory
-            unlink("{$dirname}/batch_gpg");
-            rmdir($dirname);
-        } catch (ProcessFailedException $e) {
-            // TODO: Handle process failed exception
-            VarDumper::dump($process->getCommandLine());
-            echo $process->getErrorOutput();
-            die;
-        }
-
-        // importing keys
-        $user_dir = "{$this->gnupg_home}/{$user->getUsername()}";
-        $processBuilder
-            ->setEnv("GNUPGHOME", $user_dir)
-            ->setArguments(array(
-                "--import",
-                "{$user_dir}/{$user->getUsername()}.pub"
-            ))
-        ;
-
-        // setting new process for importing public key
-        $process = $processBuilder->getProcess();
-
-        // trying to import the public key
-        try {
-            $process->mustRun();
-        } catch (ProcessFailedException $e) {
-            // TODO: Handle process failed exception
-            VarDumper::dump($process->getCommandLine());
-            echo $process->getErrorOutput();
-            die;
-        }
-
-        // setting new process for importing private key
-        $processBuilder
-            ->setArguments(array(
-                "--import",
-                "{$user_dir}/{$user->getUsername()}.sec"
-            ))
-        ;
-
-        // setting new process for importing public key
-        $process = $processBuilder->getProcess();
-
-        // trying to import the private key
-        try {
-            $process->mustRun();
-        } catch (ProcessFailedException $e) {
-            // TODO: Handle process failed exception
-            VarDumper::dump($process->getCommandLine());
-            echo $process->getErrorOutput();
-            die;
-        }
-
-        $processBuilder
-            ->setArguments(array(
-                '--export-secret-keys',
-                '--recipient',
-                "{$recipient}",
-                ">",
-                "../{$user->getUsername()}.gpg"
-            ))
-        ;
-
-        // creating new entity
-        $this->qkeyManager->create(new QKey(
-            $recipient,
-            password_hash($passphrase, PASSWORD_BCRYPT),
-            $user->getUsername()
+        // creating input
+        $input = new ArrayInput(array(
+            'command'       => 'qfe:gen-key',
+            '--username'    => $user->getUsername(),
+            '--recipient'   => $recipient,
+            '--passphrase'  => $passphrase
         ));
+
+        // Creating output
+        // TODO: handle errors
+        $output = new NullOutput();
+
+        // running the key generation
+        $application->run($input, $output);
     }
 
     /**
@@ -275,7 +178,7 @@ die;
         ));
 
         // TODO: handle error
-        $output = new BufferedOutput();
+        $output = new NullOutput();
         $application->run($input, $output);
 
         // creating the response
