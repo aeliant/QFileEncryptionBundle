@@ -17,10 +17,7 @@ use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
-use Symfony\Component\Security\Core\Tests\Encoder\PasswordEncoder;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Validator\Constraints\DateTime;
-use Symfony\Component\VarDumper\VarDumper;
 
 class AsymetricUtil
 {
@@ -143,15 +140,37 @@ class AsymetricUtil
             throw new Exception("No recipient specified");
         }
 
-        // encrypting
-        preg_match('/(.*)\/(.*)$/', $filePath, $matches);
+        // setting GNUPGHOME
+        putenv("GNUPGHOME={$this->gnupg_home}/{$qkey->getUsername()}");
 
+        // creating new gpg object
+        $gpg = new \gnupg();
+
+        // throw exception if error occurs
+        $gpg->seterrormode(GNUPG_ERROR_EXCEPTION);
+
+        // getting useful information
+        preg_match('/(.*)\/(.*)$/', $filePath, $matches);
         $path        = $matches[1];
         $oldFileName = $matches[2];
         $newFileName = uniqid((new \DateTime())->format('mdY'));
-        $userdir     = "{$this->gnupg_home}/{$qkey->getUsername()}";
 
-        shell_exec("gpg --homedir {$userdir} --trust-model always --encrypt --recipient {$qkey->getRecipient()} --output {$path}/{$newFileName}.enc {$filePath}");
+        try {
+            // adding encryption key
+            $gpg->addencryptkey($qkey->getRecipient());
+            $plain = file_get_contents($filePath);
+
+            // encrypting
+            $cipher = $gpg->encrypt($plain);
+
+            // saving file
+            file_put_contents("{$path}/{$newFileName}.enc", $cipher);
+        } catch (Exception $e) {
+            // TODO: Handle exception
+            echo $e->getMessage();
+        }
+
+        // removing original file
         unlink($filePath);
 
         // creating QFile
@@ -178,12 +197,30 @@ class AsymetricUtil
             throw new Exception("Invalid passphrase");
         }
 
-        $userdir = "{$this->gnupg_home}/{$qkey->getUsername()}";
-        $cmd = "echo \"{$passphrase}\" | gpg --homedir {$userdir} --trust-model always --decrypt --recipient {$qkey->getRecipient()} --passphrase-fd 0 --output /tmp/{$qfile->getOriginalName()} {$qfile->getPath()}/{$qfile->getFilename()}.enc";
-        shell_exec($cmd);
+        // setting gnupghome
+        putenv("GNUPGHOME={$this->gnupg_home}/{$qkey->getUsername()}");
 
+        // creating new object
+        $gnupg = new \gnupg();
+        $gnupg->seterrormode(GNUPG_ERROR_EXCEPTION);
+
+        try {
+            // decrypting
+            $gnupg->adddecryptkey($qkey->getRecipient(), $passphrase);
+            $content = file_get_contents("{$qfile->getPath()}/{$qfile->getFilename()}.enc");
+            $plain = $gnupg->decrypt($content);
+
+            // saving new file in temp
+            file_put_contents("/tmp/{$qfile->getOriginalName()}", $plain);
+        } catch (Exception $e) {
+            // TODO: Handle exception
+            echo $e->getMessage();
+        }
+
+        // creating the response
         $response = new BinaryFileResponse("/tmp/{$qfile->getOriginalName()}");
         $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $qfile->getOriginalName());
+
         return $response;
     }
 
@@ -196,7 +233,7 @@ class AsymetricUtil
     }
 
     /**
-     * @param $manager
+     * @param QKeyManager $manager
      */
     public function setQKeyManager($manager)
     {
@@ -204,13 +241,16 @@ class AsymetricUtil
     }
 
     /**
-     * @param $encoder
+     * @param UserPasswordEncoder $encoder
      */
     public function setPasswordEncoder($encoder)
     {
         $this->passwordEncoder = $encoder;
     }
 
+    /**
+     * @param QFileManager $manager
+     */
     public function setQFileManager($manager)
     {
         $this->qFileManager = $manager;
