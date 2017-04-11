@@ -41,9 +41,13 @@ class EncryptFileCommand extends ContainerAwareCommand
     {
         $this
             ->setName("qfe:encrypt")
+
             ->addArgument("file", InputArgument::REQUIRED)
+
             ->addOption("username", "u", InputOption::VALUE_REQUIRED)
             ->addOption("recipient", "r", InputOption::VALUE_REQUIRED)
+
+            ->setHidden(true)
         ;
     }
 
@@ -57,13 +61,11 @@ class EncryptFileCommand extends ContainerAwareCommand
         $username  = $input->getOption('username');
         $recipient = $input->getOption('recipient');
 
-        preg_match('/(.*)\/(.*)$/', $file, $matches);
+        preg_match('/.*\/(.*)$/', $file, $matches);
         if (0 == count($matches)) {
             $filename = $file;
-            echo "File: {$file}\n";
         } else {
-            $path     = $matches[1];
-            $filename = $matches[2];
+            $filename = $matches[1];
         }
 
         // upload directory
@@ -88,15 +90,15 @@ class EncryptFileCommand extends ContainerAwareCommand
             ))
         ;
 
-        try {
-            $builder->getProcess()->mustRun();
-        } catch (ProcessFailedException $exception) {
+        // trying to run the command
+        try { $builder->getProcess()->mustRun(); } catch (ProcessFailedException $exception) {
             dump($exception->getMessage());
         }
 
         // remove the plain text
         unlink($file);
 
+        // persist new entity in database
         $this->qfileManager->create(new QFile(
             $filename,
             $newFileName,

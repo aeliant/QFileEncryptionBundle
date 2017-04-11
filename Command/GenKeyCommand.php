@@ -47,9 +47,12 @@ class GenKeyCommand extends ContainerAwareCommand
     {
         $this
             ->setName("qfe:gen-key")
+
             ->addOption("username", "u", InputOption::VALUE_REQUIRED)
             ->addOption("recipient", "r", InputOption::VALUE_REQUIRED)
             ->addOption("passphrase", "p", InputOption::VALUE_REQUIRED)
+
+            ->setHidden(true)
         ;
     }
 
@@ -63,6 +66,7 @@ class GenKeyCommand extends ContainerAwareCommand
         $recipient  = $input->getOption('recipient');
         $passphrase = $input->getOption('passphrase');
 
+        // checking values
         if (null === $username) {
             throw new Exception("Username cannot be null");
         } else if (null === $recipient) {
@@ -76,8 +80,10 @@ class GenKeyCommand extends ContainerAwareCommand
         mkdir($dirname);
 
         // creating dir for user and setting correct permission
+        // TODO: Check if dir exists or not
         mkdir("{$this->gpg_home}/{$username}", 0700);
 
+        // creating batch gpg
         file_put_contents(
             "{$dirname}/batch_gpg",
             $this->generate_batch($username, $recipient, $passphrase)
@@ -94,13 +100,16 @@ class GenKeyCommand extends ContainerAwareCommand
             ))
         ;
 
+        // trying to generate
         try {$builder->getProcess()->mustRun(); } catch (ProcessFailedException $e) {
             dump($e->getMessage());die;
         }
 
+        // removing batch file and directory
         unlink("{$dirname}/batch_gpg");
         rmdir($dirname);
 
+        // building the command to import public key
         $userdir = "{$this->gpg_home}/{$username}";
         $builder
             ->setEnv("GNUPGHOME", $userdir)
@@ -110,10 +119,12 @@ class GenKeyCommand extends ContainerAwareCommand
             ))
         ;
 
+        // trying to run the import
         try {$builder->getProcess()->mustRun(); } catch (ProcessFailedException $e) {
             dump($e->getMessage());die;
         }
 
+        // building the command to import private key
         $builder
             ->setArguments(array(
                 "--import",
@@ -121,10 +132,12 @@ class GenKeyCommand extends ContainerAwareCommand
             ))
         ;
 
+        // trying to run the command
         try {$builder->getProcess()->mustRun(); } catch (ProcessFailedException $e) {
             dump($e->getMessage());die;
         }
 
+        // persisting the key to the datgabase
         $this->qkeyManager->create(new QKey(
             $recipient,
             password_hash($passphrase, PASSWORD_BCRYPT),
@@ -133,6 +146,8 @@ class GenKeyCommand extends ContainerAwareCommand
     }
 
     /**
+     * Generate the string to put in the batch file
+     *
      * @param string $username
      * @param string $recipient
      *
@@ -154,6 +169,5 @@ class GenKeyCommand extends ContainerAwareCommand
         $text .= "%commit\n";
 
         return $text;
-
     }
 }
