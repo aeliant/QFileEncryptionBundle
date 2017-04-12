@@ -18,6 +18,12 @@ use Symfony\Component\Process\ProcessBuilder;
  */
 class GenKeyCommand extends ContainerAwareCommand
 {
+    const KEY_TYPE      = "DSA";
+    const KEY_LENGTH    = "2048";
+    const SUBKEY_TYPE   = "ELG-E";
+    const SUBKEY_LENGTH = "2048";
+    const EXPIRE_DATE   = "0";
+
     /**
      * @var string
      */
@@ -79,6 +85,7 @@ class GenKeyCommand extends ContainerAwareCommand
             ->validate($qkey)
         ;
 
+        // if errors, exception
         if (0 != count($errors)) {
             $str = (string) $errors;
             throw new Exception("Errors occured: \n{$str}");
@@ -87,6 +94,11 @@ class GenKeyCommand extends ContainerAwareCommand
         // checking if username hasn't already registered a key pair
         if (null !== $this->qkeyManager->findByUsername($username)) {
             throw new Exception("This username is already registered");
+        }
+
+        // checking if recipient hasn't already registered a key pair
+        if (null !== $this->qkeyManager->findByRecipient($recipient)) {
+            throw new Exception("This email is already registered");
         }
 
         // dirname in tmp directory
@@ -164,14 +176,14 @@ class GenKeyCommand extends ContainerAwareCommand
      */
     private function generate_batch($username, $recipient, $passphrase)
     {
-        $text  = "Key-Type: DSA\n";
-        $text .= "Key-Length: 2048\n";
-        $text .= "Subkey-Type: ELG-E\n";
-        $text .= "Subkey-Length: 2048\n";
+        $text  = sprintf("Key-Type: %s\n",      self::KEY_TYPE);
+        $text .= sprintf("Key-Length: %s\n",    self::KEY_LENGTH);
+        $text .= sprintf("Subkey-Type: %s\n",   self::SUBKEY_TYPE);
+        $text .= sprintf("Subkey-Length: %s\n", self::SUBKEY_LENGTH);
         $text .= "Name-Real: {$username}\n";
         $text .= "Name-Comment: User {$username} key pair\n";
         $text .= "Name-Email: {$recipient}\n";
-        $text .= "Expire-Date: 0\n";
+        $text .= sprintf("Expire-Date: %s\n", self::EXPIRE_DATE);
         $text .= "Passphrase: {$passphrase}\n";
         $text .= "%pubring {$this->gpg_home}/{$username}/{$username}.pub\n";
         $text .= "%secring {$this->gpg_home}/{$username}/{$username}.sec\n";
