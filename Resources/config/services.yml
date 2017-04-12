@@ -3,3 +3,4 @@ services:
         class:      Querdos\QFileEncryptionBundle\Util\AsymetricUtil
         calls:
             - [ setKernel,          [ '@kernel' ]]
+            - [ setQKeyManager,     [ '@qfe.manager.qkey']]

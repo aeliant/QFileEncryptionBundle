@@ -173,4 +173,15 @@ class AsymetricUtil
         $this->kernel = $kernel;
         return $this;
     }
+
+    /**
+     * @param QKeyManager $qkeyManager
+     *
+     * @return AsymetricUtil
+     */
+    public function setQkeyManager($qkeyManager)
+    {
+        $this->qkeyManager = $qkeyManager;
+        return $this;
+    }
 }
