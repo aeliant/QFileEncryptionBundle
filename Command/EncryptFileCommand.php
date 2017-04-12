@@ -3,6 +3,7 @@
 namespace Querdos\QFileEncryptionBundle\Command;
 
 use Querdos\QFileEncryptionBundle\Entity\QFile;
+use Querdos\QFileEncryptionBundle\Entity\QKey;
 use Querdos\QFileEncryptionBundle\Manager\QFileManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Config\Definition\Exception\Exception;
@@ -62,16 +63,28 @@ class EncryptFileCommand extends ContainerAwareCommand
         $recipient   = $input->getOption('recipient');
         $delOriginal = $input->getOption('delete-original');
 
+        // checking that the file exists
+        if (!file_exists($file)) {
+            throw new Exception("File not found");
+        }
+
+        // checking that recipient is correct
+        $validator = $this->getContainer()->get('validator');
+        $error = $validator->validatePropertyValue(
+            QKey::class,
+            'recipient',
+            $recipient
+        );
+
+        if (count($error) != 0) {
+            throw new Exception((string) $error);
+        }
+
         preg_match('/.*\/(.*)$/', $file, $matches);
         if (0 == count($matches)) {
             $filename = $file;
         } else {
             $filename = $matches[1];
-        }
-
-        // checking that the file exists
-        if (!file_exists($file)) {
-            throw new Exception("File not found");
         }
 
         // upload directory
