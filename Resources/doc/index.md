@@ -63,6 +63,11 @@ You can noww configure your configuration file ans specify these following optio
 
 The `gnupg_home` directory will be used to store key pairs for each users and use them later to encrypt/decrypt files for the given user.
 
+Update your database schema by running the following  command:
+    $ bin/console doctrine:schema:update --force
+Or if you have the `DoctrineMigrationBundle` enabled:
+    $ bin/console doctrine:migration:diff && bin/console doctrine:migration:migrate
+
 Finally, make sure that your application has at least validations enabled (you can add annotation validation if you want)
 
     # app/config/config.yml
