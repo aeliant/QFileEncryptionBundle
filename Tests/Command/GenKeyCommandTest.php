@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by Hamza ESSAYEGH
- * User: querdos
- * Date: 4/12/17
- * Time: 9:40 AM
- */
-
 namespace Querdos\QFileEncryptionBundle\Tests\Command;
 
 use Querdos\QFileEncryptionBundle\Command\GenKeyCommand;
@@ -14,8 +7,18 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Config\Definition\Exception\Exception;
 
+/**
+ * Class GenKeyCommandTest
+ * @package Querdos\QFileEncryptionBundle\Tests\Command
+ * @author  Hamza ESSAYEGH <hamza.essayegh@protonmail.com>
+ */
 class GenKeyCommandTest extends WebTestCase
 {
+    const USERNAME   = "querdos_test_genkey";
+    const RECIPIENT  = self::USERNAME . "@gmail.com";
+    const PASSPHRASE = "test1234";
+
+
     /**
      * @inheritdoc
      */
@@ -38,9 +41,9 @@ class GenKeyCommandTest extends WebTestCase
         // creating new key pair, normally good
         $commandTester->execute( array (
             'command' => $command->getName(),
-            '--username'    => 'querdos',
-            '--recipient'   => 'querdos@gmail.com',
-            '--passphrase'  => 'test1234'
+            '--username'    => self::USERNAME,
+            '--recipient'   => self::RECIPIENT,
+            '--passphrase'  => self::PASSPHRASE
         ));
 
         // asserting that everything's ok
@@ -50,7 +53,7 @@ class GenKeyCommandTest extends WebTestCase
         $entity =self::$kernel
             ->getContainer()
             ->get('qfe.manager.qkey')
-            ->findByUsername('querdos');
+            ->findByUsername(self::USERNAME);
 
         // checking that the entity has been persisted
         $this->assertTrue($entity !== null);
@@ -58,16 +61,24 @@ class GenKeyCommandTest extends WebTestCase
         // checking that a directory has been created
         $gpghome = self::$kernel->getContainer()->getParameter('q_file_encryption.gnupg_home');
         $this->assertTrue(
-            is_dir("{$gpghome}/querdos")
+            is_dir("{$gpghome}/" . self::USERNAME)
         );
 
         // checking that at least private and public key has been generated
         $this->assertTrue(
-            file_exists("{$gpghome}/querdos/querdos.pub")
+            file_exists(sprintf(
+                "%s/%s/%s.pub",
+                    $gpghome,
+                    self::USERNAME,
+                    self::USERNAME))
         );
 
         $this->assertTrue(
-           file_exists("{$gpghome}/querdos/querdos.sec")
+            file_exists(sprintf(
+                "%s/%s/%s.sec",
+                $gpghome,
+                self::USERNAME,
+                self::USERNAME))
         );
 
         // checking that no gpg_xxxxx is still there in the tmp directory
@@ -77,14 +88,18 @@ class GenKeyCommandTest extends WebTestCase
 
         // checking that a trust database has been created
         $this->assertTrue(
-            file_exists("{$gpghome}/querdos/trustdb.gpg")
+            file_exists(sprintf(
+                "%s/%s/trustdb.gpg",
+                $gpghome,
+                self::USERNAME
+            ))
         );
 
         // Expecting exception -> username exists
         $this->expectException(Exception::class);
         $commandTester->execute( array (
             'command' => $command->getName(),
-            '--username'    => 'querdos',
+            '--username'    => self::USERNAME,
             '--recipient'   => 'querdos@gmail.com',
             '--passphrase'  => 'test1234'
         ));
@@ -97,7 +112,5 @@ class GenKeyCommandTest extends WebTestCase
             '--recipient'   => 'querdos@gmail.com',
             '--passphrase'  => 'test1234'
         ));
-
-        // checking that dir exists
     }
 }
