@@ -6,7 +6,8 @@ namespace Querdos\QFileEncryptionBundle\Entity;
  *
  * Entity used to store informations about files to encrypt
  *
- * @author Hamza ESSAYEGH <hamza.Essayegh@protonmail.com>
+ * @package Querdos\QFileEncryptionBundle\Entity
+ * @author Hamza ESSAYEGH <hamza.essayegh@protonmail.com>
  */
 class QFile
 {
