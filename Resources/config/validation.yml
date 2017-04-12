@@ -1,0 +1,22 @@
+Querdos\QFileEncryptionBundle\Entity\QKey:
+    properties:
+        username:
+            - NotBlank:
+                message: Username cannot be blank
+            - NotNull:
+                message: Username cannot be null
+
+        passphrase:
+            - NotBlank:
+                message: Passphrase cannot be blank
+            - NotNull:
+                message: Passphrase cannot be null
+
+        recipient:
+            - NotBlank:
+                message: Email cannot be blank
+            - NotNull:
+                message: Email cannot be null
+            - Email:
+                message: Not a valid email
+                checkMX: true
