@@ -40,26 +40,6 @@ class AsymetricUtil
      */
     public function generate_key($recipient, $passphrase, UserInterface $user)
     {
-        // checking recipient <> null
-        if (null === $recipient || 0 == strlen($recipient)) {
-            throw new Exception("Recipient cannot be null or empty. (value = {$recipient})");
-        }
-
-        // checking passphrase <> null
-        if (null === $passphrase || 0 == strlen($passphrase)) {
-            throw new Exception("Passphrase cannot be null or empty. (value = {$passphrase})");
-        }
-
-        // checking username <> null
-        if (null === $user->getUsername() || 0 == strlen($user->getUsername())) {
-            throw new Exception("Username cannot be null or empty. (value = {$user->getUsername()})");
-        }
-
-        // checking that user hasn't an existing key pair
-        if (null !== $this->qkeyManager->findByUsername($user->getUsername())) {
-            throw new Exception("User already have a saved key pair.");
-        }
-
         // creating application with current kernel
         $application = new Application($this->kernel);
         $application->setAutoExit(false);
