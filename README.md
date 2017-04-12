@@ -20,4 +20,4 @@ description on how the bundle handle the procedures:
   
 # Documentation
 For usage documentation, see:  
-[Resources/doc/index.rst](https://github.com/Querdos/QFileEncryptionBundle/blob/master/Resources/doc/index.md)
+[Resources/doc/index.md](https://github.com/Querdos/QFileEncryptionBundle/blob/master/Resources/doc/index.md)
