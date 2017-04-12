@@ -2,6 +2,7 @@
 namespace Querdos\QFileEncryptionBundle\Command;
 
 use Querdos\QFileEncryptionBundle\Entity\QFile;
+use Querdos\QFileEncryptionBundle\Entity\QKey;
 use Querdos\QFileEncryptionBundle\Manager\QFileManager;
 use Querdos\QFileEncryptionBundle\Manager\QKeyManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -73,8 +74,21 @@ class DecryptFileCommand extends ContainerAwareCommand
         $recipient  = $input->getOption('recipient');
         $passphrase = $input->getOption('passphrase');
 
+        // validation
+        $validator = $this->getContainer()->get('validator');
+        $error = $validator->validatePropertyValue(
+            QKey::class,
+            'recipient',
+            $recipient
+        );
+
+        // exception if error
+        if (0 != count($error)) {
+            throw new Exception((string) $error);
+        }
+
         // spliting the given file
-        preg_match('/(.*)\/(.*).enc$/', $file, $matches);
+        preg_match('/(.*)\/(.*)\.enc$/', $file, $matches);
         $filename = $matches[2];
 
         // retrieving qfile and qkey
