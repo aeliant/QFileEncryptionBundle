@@ -46,6 +46,7 @@ class EncryptFileCommand extends ContainerAwareCommand
 
             ->addOption("username", "u", InputOption::VALUE_REQUIRED)
             ->addOption("recipient", "r", InputOption::VALUE_REQUIRED)
+            ->addOption('delete-original', 'd', InputOption::VALUE_OPTIONAL, null, true)
 
             ->setHidden(true)
         ;
@@ -57,9 +58,10 @@ class EncryptFileCommand extends ContainerAwareCommand
     public function execute(InputInterface $input, OutputInterface $output)
     {
         // params
-        $file      = $input->getArgument('file');
-        $username  = $input->getOption('username');
-        $recipient = $input->getOption('recipient');
+        $file        = $input->getArgument('file');
+        $username    = $input->getOption('username');
+        $recipient   = $input->getOption('recipient');
+        $delOriginal = $input->getOption('delete-original');
 
         preg_match('/.*\/(.*)$/', $file, $matches);
         if (0 == count($matches)) {
@@ -101,8 +103,10 @@ class EncryptFileCommand extends ContainerAwareCommand
             dump($exception->getMessage());
         }
 
-        // remove the plain text
-        unlink($file);
+        // remove the plain text if the option is true
+        if ($delOriginal) {
+            unlink($file);
+        }
 
         // persist new entity in database
         $this->qfileManager->create(new QFile(
