@@ -81,7 +81,7 @@ class GenKeyCommand extends ContainerAwareCommand
 
         // creating dir for user and setting correct permission
         // TODO: Check if dir exists or not
-        mkdir("{$this->gpg_home}/{$username}", 0700);
+        mkdir("{$this->gpg_home}/{$username}", 0700, true);
 
         // creating batch gpg
         file_put_contents(
