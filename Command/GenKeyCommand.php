@@ -1,13 +1,5 @@
 <?php
-/**
- * Created by Hamza ESSAYEGH
- * User: querdos
- * Date: 4/11/17
- * Time: 1:39 PM
- */
-
 namespace Querdos\QFileEncryptionBundle\Command;
-
 
 use Querdos\QFileEncryptionBundle\Entity\QKey;
 use Querdos\QFileEncryptionBundle\Manager\QKeyManager;
@@ -18,9 +10,12 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\ProcessBuilder;
-use Symfony\Component\Validator\Constraints\EmailValidator;
-use Symfony\Component\Validator\ConstraintViolation;
 
+/**
+ * Class GenKeyCommand
+ * @package Querdos\QFileEncryptionBundle\Command
+ * @author  Hamza ESSAYEGH <hamza.essayegh@protonmail.com>
+ */
 class GenKeyCommand extends ContainerAwareCommand
 {
     /**
@@ -95,7 +90,7 @@ class GenKeyCommand extends ContainerAwareCommand
         }
 
         // dirname in tmp directory
-        $dirname = sprintf("/tmp/gmp_%s", uniqid());
+        $dirname = sprintf("/tmp/gpg_%s", uniqid());
         mkdir($dirname);
 
         // creating dir for user and setting correct permission

@@ -1,17 +1,14 @@
 <?php
-/**
- * Created by Hamza ESSAYEGH
- * User: querdos
- * Date: 4/10/17
- * Time: 1:35 PM
- */
-
 namespace Querdos\QFileEncryptionBundle\Manager;
-
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 
+/**
+ * Class BaseManager
+ * @package Querdos\QFileEncryptionBundle\Manager
+ * @author  Hamza ESSAYEGH <hamza.essayegh@protonmail.com>
+ */
 class BaseManager
 {
     /**

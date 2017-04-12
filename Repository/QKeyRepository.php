@@ -1,16 +1,13 @@
 <?php
-/**
- * Created by Hamza ESSAYEGH
- * User: querdos
- * Date: 4/10/17
- * Time: 9:01 AM
- */
-
 namespace Querdos\QFileEncryptionBundle\Repository;
-
 
 use Doctrine\ORM\EntityRepository;
 
+/**
+ * Class QKeyRepository
+ * @package Querdos\QFileEncryptionBundle\Repository
+ * @author  Hamza ESSAYEGH <hamza.essayegh@protonmail.com>
+ */
 class QKeyRepository extends EntityRepository
 {
 

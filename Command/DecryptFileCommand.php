@@ -1,16 +1,7 @@
 <?php
-/**
- * Created by Hamza ESSAYEGH
- * User: querdos
- * Date: 4/11/17
- * Time: 1:07 PM
- */
-
 namespace Querdos\QFileEncryptionBundle\Command;
 
-
 use Querdos\QFileEncryptionBundle\Entity\QFile;
-use Querdos\QFileEncryptionBundle\Entity\QKey;
 use Querdos\QFileEncryptionBundle\Manager\QFileManager;
 use Querdos\QFileEncryptionBundle\Manager\QKeyManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -21,6 +12,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\ProcessBuilder;
 
+/**
+ * Class DecryptFileCommand
+ * @package Querdos\QFileEncryptionBundle\Command
+ * @author  Hamza ESSAYEGH <hamza.essayegh@protonmail.com>
+ */
 class DecryptFileCommand extends ContainerAwareCommand
 {
     /**

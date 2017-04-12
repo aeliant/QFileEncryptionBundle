@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by Hamza ESSAYEGH
- * User: querdos
- * Date: 4/11/17
- * Time: 1:15 PM
- */
 
 namespace Querdos\QFileEncryptionBundle\Command;
-
 
 use Querdos\QFileEncryptionBundle\Entity\QFile;
 use Querdos\QFileEncryptionBundle\Manager\QFileManager;
@@ -19,6 +12,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\ProcessBuilder;
 
+/**
+ * Class EncryptFileCommand
+ * @package Querdos\QFileEncryptionBundle\Command
+ * @author  Hamza ESSAYEGH <hamza.essayegh@protonmail.com>
+ */
 class EncryptFileCommand extends ContainerAwareCommand
 {
     /**

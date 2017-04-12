@@ -1,17 +1,12 @@
 <?php
-/**
- * Created by Hamza ESSAYEGH
- * User: querdos
- * Date: 4/9/17
- * Time: 4:43 PM
- */
-
 namespace Querdos\QFileEncryptionBundle\Entity;
 
 /**
  * Class QFile
  *
  * Entity used to store informations about files to encrypt
+ *
+ * @author Hamza ESSAYEGH <hamza.Essayegh@protonmail.com>
  */
 class QFile
 {

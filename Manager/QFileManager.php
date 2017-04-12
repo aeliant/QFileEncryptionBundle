@@ -1,13 +1,11 @@
 <?php
-/**
- * Created by Hamza ESSAYEGH
- * User: querdos
- * Date: 4/9/17
- * Time: 8:21 PM
- */
-
 namespace Querdos\QFileEncryptionBundle\Manager;
 
+/**
+ * Class QFileManager
+ * @package Querdos\QFileEncryptionBundle\Manager
+ * @author  Hamza ESSAYEGH <hamza.essayegh@protonmail.com>
+ */
 class QFileManager extends BaseManager
 {
     /**
