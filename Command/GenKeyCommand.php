@@ -18,6 +18,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\ProcessBuilder;
+use Symfony\Component\Validator\Constraints\EmailValidator;
+use Symfony\Component\Validator\ConstraintViolation;
 
 class GenKeyCommand extends ContainerAwareCommand
 {
@@ -66,13 +68,30 @@ class GenKeyCommand extends ContainerAwareCommand
         $recipient  = $input->getOption('recipient');
         $passphrase = $input->getOption('passphrase');
 
-        // checking values
-        if (null === $username) {
-            throw new Exception("Username cannot be null");
-        } else if (null === $recipient) {
-            throw new Exception("Recipient cannot be null");
-        } else if (null === $passphrase) {
-            throw new Exception("Passphrase cannot be null");
+        // creating the object
+        $qkey = new QKey(
+            $recipient,
+            null === $passphrase ?
+                null :
+                password_hash($passphrase, PASSWORD_BCRYPT),
+            $username
+        );
+
+        // validate the entity before anything else
+        $errors = $this
+            ->getContainer()
+            ->get('validator')
+            ->validate($qkey)
+        ;
+
+        if (0 != count($errors)) {
+            $str = (string) $errors;
+            throw new Exception("Errors occured: \n{$str}");
+        }
+
+        // checking if username hasn't already registered a key pair
+        if (null !== $this->qkeyManager->findByUsername($username)) {
+            throw new Exception("This username is already registered");
         }
 
         // dirname in tmp directory
@@ -80,7 +99,6 @@ class GenKeyCommand extends ContainerAwareCommand
         mkdir($dirname);
 
         // creating dir for user and setting correct permission
-        // TODO: Check if dir exists or not
         mkdir("{$this->gpg_home}/{$username}", 0700);
 
         // creating batch gpg
@@ -138,11 +156,7 @@ class GenKeyCommand extends ContainerAwareCommand
         }
 
         // persisting the key to the datgabase
-        $this->qkeyManager->create(new QKey(
-            $recipient,
-            password_hash($passphrase, PASSWORD_BCRYPT),
-            $username
-        ));
+        $this->qkeyManager->create($qkey);
     }
 
     /**
