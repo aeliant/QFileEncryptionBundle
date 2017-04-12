@@ -69,7 +69,8 @@ class EncryptFileCommand extends ContainerAwareCommand
         }
 
         // upload directory
-        $uploads_dir = $this->getContainer()->get('kernel')->getRootDir() . "/../web/uploads";
+        $enc_dir     = $this->getContainer()->getParameter('q_file_encryption.enc_dir');
+        $uploads_dir = $this->getContainer()->get('kernel')->getRootDir() . '/../web/' . $enc_dir;
         $newFileName = uniqid((new \DateTime())->format('mdY'));
 
         // gnupg home
@@ -89,6 +90,11 @@ class EncryptFileCommand extends ContainerAwareCommand
                 $file
             ))
         ;
+
+        // checking if upload dir exists and create it if not
+        if (!is_dir($uploads_dir)) {
+            mkdir($uploads_dir);
+        }
 
         // trying to run the command
         try { $builder->getProcess()->mustRun(); } catch (ProcessFailedException $exception) {

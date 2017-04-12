@@ -24,10 +24,8 @@ class QFileEncryptionExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         // setting configuration in the container
-//        $container->setParameter("q_file_encryption.encryption", $config['encryption']);
-//        $container->setParameter("q_file_encryption.recipient", $config['recipient']);
-//
         $container->setParameter("q_file_encryption.gnupg_home", $config['gnupg_home']);
+        $container->setParameter('q_file_encryption.enc_dir', $config['enc_dir']);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
