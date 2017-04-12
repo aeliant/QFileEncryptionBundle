@@ -1,13 +1,5 @@
 <?php
-/**
- * Created by Hamza ESSAYEGH
- * User: querdos
- * Date: 4/9/17
- * Time: 6:31 PM
- */
-
 namespace Querdos\QFileEncryptionBundle\Util;
-
 
 use Querdos\QFileEncryptionBundle\Entity\QFile;
 use Querdos\QFileEncryptionBundle\Entity\QKey;
@@ -21,6 +13,11 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Security\Core\User\UserInterface;
 
+/**
+ * Class AsymetricUtil
+ * @package Querdos\QFileEncryptionBundle\Util
+ * @author  Hamza ESSAYEGH <hamza.essayegh@protonmail.com>
+ */
 class AsymetricUtil
 {
     /**
@@ -43,26 +40,6 @@ class AsymetricUtil
      */
     public function generate_key($recipient, $passphrase, UserInterface $user)
     {
-        // checking recipient <> null
-        if (null === $recipient || 0 == strlen($recipient)) {
-            throw new Exception("Recipient cannot be null or empty. (value = {$recipient})");
-        }
-
-        // checking passphrase <> null
-        if (null === $passphrase || 0 == strlen($passphrase)) {
-            throw new Exception("Passphrase cannot be null or empty. (value = {$passphrase})");
-        }
-
-        // checking username <> null
-        if (null === $user->getUsername() || 0 == strlen($user->getUsername())) {
-            throw new Exception("Username cannot be null or empty. (value = {$user->getUsername()})");
-        }
-
-        // checking that user hasn't an existing key pair
-        if (null !== $this->qkeyManager->findByUsername($user->getUsername())) {
-            throw new Exception("User already have a saved key pair.");
-        }
-
         // creating application with current kernel
         $application = new Application($this->kernel);
         $application->setAutoExit(false);
@@ -76,7 +53,6 @@ class AsymetricUtil
         ));
 
         // Creating output
-        // TODO: handle errors
         $output = new NullOutput();
 
         // running the key generation
@@ -91,21 +67,6 @@ class AsymetricUtil
      */
     public function encrypt_file($filePath, QKey $qkey)
     {
-        // checking file path
-        if (null === $filePath || !file_exists($filePath)) {
-            throw new Exception("No valid file specified (value = {$filePath})");
-        }
-
-        // checking user has a key pair
-        if (null === $this->qkeyManager->findByUsername($qkey->getUsername())) {
-            throw new Exception("No key pair associated with {$qkey->getUsername()}");
-        }
-
-        // checking recipient
-        if (null === $qkey->getRecipient()) {
-            throw new Exception("No recipient specified");
-        }
-
         // creating application with kernel
         $application = new Application($this->kernel);
         $application->setAutoExit(false);
@@ -119,7 +80,6 @@ class AsymetricUtil
         ));
 
         // creating null output
-        // TODO: Handle error
         $output = new NullOutput();
 
         // running application
@@ -155,8 +115,8 @@ class AsymetricUtil
             'file'          => "{$qfile->getPath()}/{$qfile->getFilename()}.enc",
         ));
 
-        // TODO: handle error
         $output = new NullOutput();
+
         $application->run($input, $output);
 
         // creating the response

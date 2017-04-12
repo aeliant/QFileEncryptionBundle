@@ -1,14 +1,11 @@
 <?php
-/**
- * Created by Hamza ESSAYEGH
- * User: querdos
- * Date: 4/10/17
- * Time: 8:58 AM
- */
-
 namespace Querdos\QFileEncryptionBundle\Entity;
 
-
+/**
+ * Class QKey
+ * @package Querdos\QFileEncryptionBundle\Entity
+ * @author  Hamza ESSAYEGH <hamza.essayegh@protonmail.com>
+ */
 class QKey
 {
     /**

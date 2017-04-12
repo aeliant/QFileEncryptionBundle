@@ -25,16 +25,16 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
 
-//            ->scalarNode('encryption')
-//            ->defaultValue('symetric')
-//            ->end()
-//
-//            ->scalarNode('recipient')
-//            ->defaultNull()
-//            ->end()
-
             ->scalarNode('gnupg_home')
             ->defaultNull()
+            ->end()
+
+            ->scalarNode('enc_dir')
+            ->defaultValue('enc_documents')
+            ->end()
+
+            ->scalarNode('logs_dir')
+            ->defaultValue('var/logs/qfe.log')
             ->end()
         ;
 

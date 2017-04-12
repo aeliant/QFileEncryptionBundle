@@ -1,13 +1,13 @@
 <?php
-/**
- * Created by Hamza ESSAYEGH
- * User: querdos
- * Date: 4/10/17
- * Time: 1:33 PM
- */
-
 namespace Querdos\QFileEncryptionBundle\Manager;
 
+use Querdos\QFileEncryptionBundle\Entity\QKey;
+
+/**
+ * Class QKeyManager
+ * @package Querdos\QFileEncryptionBundle\Manager
+ * @author  Hamza ESSAYEGH <hamza.essayegh@protonmail.com>
+ */
 class QKeyManager extends BaseManager
 {
     /**
@@ -15,10 +15,22 @@ class QKeyManager extends BaseManager
      *
      * @param string $username
      *
-     * @return QKeyManager
+     * @return QKey
      */
     public function findByUsername($username)
     {
         return $this->repository->findOneByUsername($username);
+    }
+
+    /**
+     * Find a key pair with the given email
+     *
+     * @param string $recipient
+     *
+     * @return QKey
+     */
+    public function findByRecipient($recipient)
+    {
+        return $this->repository->findOneByRecipient($recipient);
     }
 }
