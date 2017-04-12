@@ -5,6 +5,7 @@ namespace Querdos\QFileEncryptionBundle\Command;
 use Querdos\QFileEncryptionBundle\Entity\QFile;
 use Querdos\QFileEncryptionBundle\Manager\QFileManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -44,7 +45,7 @@ class EncryptFileCommand extends ContainerAwareCommand
 
             ->addOption("username", "u", InputOption::VALUE_REQUIRED)
             ->addOption("recipient", "r", InputOption::VALUE_REQUIRED)
-            ->addOption('delete-original', 'd', InputOption::VALUE_OPTIONAL, null, true)
+            ->addOption('delete-original', 'd', InputOption::VALUE_REQUIRED, null, true)
 
             ->setHidden(true)
         ;
@@ -66,6 +67,11 @@ class EncryptFileCommand extends ContainerAwareCommand
             $filename = $file;
         } else {
             $filename = $matches[1];
+        }
+
+        // checking that the file exists
+        if (!file_exists($file)) {
+            throw new Exception("File not found");
         }
 
         // upload directory
@@ -102,7 +108,7 @@ class EncryptFileCommand extends ContainerAwareCommand
         }
 
         // remove the plain text if the option is true
-        if ($delOriginal) {
+        if (true === $delOriginal) {
             unlink($file);
         }
 

@@ -1,13 +1,5 @@
 <?php
-/**
- * Created by Hamza ESSAYEGH
- * User: querdos
- * Date: 4/9/17
- * Time: 6:31 PM
- */
-
 namespace Querdos\QFileEncryptionBundle\Util;
-
 
 use Querdos\QFileEncryptionBundle\Entity\QFile;
 use Querdos\QFileEncryptionBundle\Entity\QKey;
@@ -21,6 +13,11 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Security\Core\User\UserInterface;
 
+/**
+ * Class AsymetricUtil
+ * @package Querdos\QFileEncryptionBundle\Util
+ * @author  Hamza ESSAYEGH <hamza.essayegh@protonmail.com>
+ */
 class AsymetricUtil
 {
     /**
