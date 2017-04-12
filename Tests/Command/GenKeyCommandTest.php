@@ -95,22 +95,58 @@ class GenKeyCommandTest extends WebTestCase
             ))
         );
 
-        // Expecting exception -> username exists
-        $this->expectException(Exception::class);
-        $commandTester->execute( array (
+        // initial input with errors
+        $input = array(
             'command' => $command->getName(),
             '--username'    => self::USERNAME,
             '--recipient'   => 'querdos@gmail.com',
             '--passphrase'  => 'test1234'
-        ));
+        );
+
+        // Expecting exception -> username exists
+        $this->expectException(Exception::class);
+        $commandTester->execute($input);
 
         // Expecting exception -> username null
+        $input['--username'] = null;
         $this->expectException(Exception::class);
-        $commandTester->execute( array (
-            'command' => $command->getName(),
-            '--username'    => null,
-            '--recipient'   => 'querdos@gmail.com',
-            '--passphrase'  => 'test1234'
-        ));
+        $commandTester->execute($input);
+
+        // Expecting exception -> username empty
+        $input['--username'] = '';
+        $this->expectException(Exception::class);
+        $commandTester->execute($input);
+
+        // Expecting exception -> recipient invalid
+        $input['--username']  = uniqid();
+        $input['--recipient'] = 'querdos@azerazer';
+        $this->expectException(Exception::class);
+        $commandTester->execute($input);
+
+        // Expecting exception -> recipient null
+        $input['--recipient'] = null;
+        $this->expectException(Exception::class);
+        $commandTester->execute($input);
+
+        // Excepting exception -> recipient empty
+        $input['--recipient'] = '';
+        $this->expectException(Exception::class);
+        $commandTester->execute($input);
+
+        // Expecting exception -> recipient exists
+        $input['--recipient'] = self::RECIPIENT;
+        $this->expectException(Exception::class);
+        $commandTester->execute($input);
+
+        // Expecting exception -> passphrase null
+        $input['--recipient']  = 'querdos@gmail.com';
+        $input['--passphrase'] = null;
+        $this->expectException(Exception::class);
+        $commandTester->execute($input);
+
+        // Expecting exception -> passphrase empty
+        $input['--passphrase'] = '';
+        $this->expectException(Exception::class);
+        $commandTester->execute($input);
     }
 }
