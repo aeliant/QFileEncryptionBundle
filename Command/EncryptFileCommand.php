@@ -4,15 +4,19 @@ namespace Querdos\QFileEncryptionBundle\Command;
 
 use Querdos\QFileEncryptionBundle\Entity\QFile;
 use Querdos\QFileEncryptionBundle\Entity\QKey;
+use Querdos\QFileEncryptionBundle\Exception\EncryptionException;
+use Querdos\QFileEncryptionBundle\Exception\KeyOptionsException;
 use Querdos\QFileEncryptionBundle\Manager\QFileManager;
+use Querdos\QFileEncryptionBundle\Util\LogUtil;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Form\Exception\InvalidConfigurationException;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\ProcessBuilder;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
  * Class EncryptFileCommand
@@ -27,11 +31,38 @@ class EncryptFileCommand extends ContainerAwareCommand
     private $qfileManager;
 
     /**
+     * @var string
+     */
+    private $gnupg_home;
+
+    /**
+     * @var string
+     */
+    private $log_file;
+
+    /**
      * {@inheritdoc}
      */
     public function initialize(InputInterface $input, OutputInterface $output)
     {
         $this->qfileManager = $this->getContainer()->get('qfe.manager.qfile');
+        $this->gnupg_home   = $this->getContainer()->getParameter('q_file_encryption.gnupg_home');
+
+        $this->log_file = sprintf(
+            "%s/../%s",
+            $this->getContainer()->get('kernel')->getRootDir(),
+            $this->getContainer()->getParameter('q_file_encryption.logs_dir')
+        );
+
+        // checking gnupg_home
+        if (null === $this->gnupg_home) {
+            throw new InvalidConfigurationException("Incorrect value for the GNUPG_HOME parameter");
+        }
+
+        // checking log_dir
+        if (null === $this->log_file) {
+            throw new InvalidConfigurationException("Incorrect value for the log file path");
+        }
     }
 
     /**
@@ -65,7 +96,7 @@ class EncryptFileCommand extends ContainerAwareCommand
 
         // checking that the file exists
         if (!file_exists($file)) {
-            throw new Exception("File not found");
+            throw new ResourceNotFoundException("File not found");
         }
 
         // checking that recipient is correct
@@ -76,8 +107,9 @@ class EncryptFileCommand extends ContainerAwareCommand
             $recipient
         );
 
+        // throwing exception if error
         if (count($error) != 0) {
-            throw new Exception((string) $error);
+            throw new KeyOptionsException((string) $error);
         }
 
         preg_match('/.*\/(.*)$/', $file, $matches);
@@ -92,14 +124,11 @@ class EncryptFileCommand extends ContainerAwareCommand
         $uploads_dir = $this->getContainer()->get('kernel')->getRootDir() . '/../web/' . $enc_dir;
         $newFileName = uniqid((new \DateTime())->format('mdY'));
 
-        // gnupg home
-        $gnupg_home = $this->getContainer()->getParameter('q_file_encryption.gnupg_home');
-
         // building the command
         $builder = new ProcessBuilder();
         $builder
             ->setPrefix("/usr/bin/gpg")
-            ->setEnv("GNUPGHOME", $gnupg_home . "/{$username}")
+            ->setEnv("GNUPGHOME", $this->gnupg_home . "/{$username}")
             ->setArguments(array(
                 '--trust-model', 'always',
 
@@ -117,7 +146,11 @@ class EncryptFileCommand extends ContainerAwareCommand
 
         // trying to run the command
         try { $builder->getProcess()->mustRun(); } catch (ProcessFailedException $exception) {
-            dump($exception->getMessage());
+            // logging
+            LogUtil::write_error($this->log_file, $exception);
+
+            // exception
+            throw new EncryptionException("Encryption error, see log file");
         }
 
         // remove the plain text if the option is true

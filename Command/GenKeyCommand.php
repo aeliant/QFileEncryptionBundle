@@ -2,10 +2,13 @@
 namespace Querdos\QFileEncryptionBundle\Command;
 
 use Querdos\QFileEncryptionBundle\Entity\QKey;
+use Querdos\QFileEncryptionBundle\Exception\KeyGenerationException;
+use Querdos\QFileEncryptionBundle\Exception\KeyImportException;
+use Querdos\QFileEncryptionBundle\Exception\KeyOptionsException;
 use Querdos\QFileEncryptionBundle\Manager\QKeyManager;
 use Querdos\QFileEncryptionBundle\Util\LogUtil;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -19,11 +22,16 @@ use Symfony\Component\Process\ProcessBuilder;
  */
 class GenKeyCommand extends ContainerAwareCommand
 {
+    // constants for batch file generation
     const KEY_TYPE      = "DSA";
     const KEY_LENGTH    = "2048";
     const SUBKEY_TYPE   = "ELG-E";
     const SUBKEY_LENGTH = "2048";
     const EXPIRE_DATE   = "0";
+
+    // constants error printing
+    const ERROR_GEN    = "error-key-gen";
+    const ERROR_IMPORT = "error-key-import";
 
     /**
      * @var string
@@ -53,6 +61,15 @@ class GenKeyCommand extends ContainerAwareCommand
             $this->getContainer()->get('kernel')->getRootDir(),
             $this->getContainer()->getParameter('q_file_encryption.logs_dir')
         );
+
+        // checking gnupg_home
+        if (null === $this->gpg_home) {
+            throw new InvalidConfigurationException("Incorrect value for the GNUPG_HOME parameter");
+        }
+
+        if (null === $this->log_file) {
+            throw new InvalidConfigurationException("Incorrect value for the log file parameter");
+        }
     }
 
     /**
@@ -90,27 +107,35 @@ class GenKeyCommand extends ContainerAwareCommand
             $username
         );
 
-        // validate the entity before anything else
-        $errors = $this
-            ->getContainer()
-            ->get('validator')
-            ->validate($qkey)
-        ;
+        // validation
+        $validator = $this->getContainer()->get('validator');
+        $username_err   = $validator->validatePropertyValue(QKey::class, 'username', $username);
+        $recipient_err  = $validator->validatePropertyValue(QKey::class, 'recipient', $recipient);
+        $passphrase_err = $validator->validatePropertyValue(QKey::class, 'passphrase', $passphrase);
 
-        // if errors, exception
-        if (0 != count($errors)) {
-            $str = (string) $errors;
-            throw new Exception("Errors occured: \n{$str}");
+        // checking username is correct
+        if (0 != count($username_err)) {
+            throw new KeyOptionsException("Username error");
+        }
+
+        // checking recipient is correct
+        if (0 != count($recipient_err)) {
+            throw new KeyOptionsException("Recipient error");
+        }
+
+        // checking passphrase is correct
+        if (0 != count($passphrase_err)) {
+            throw new KeyOptionsException("Passphrase error");
         }
 
         // checking if username hasn't already registered a key pair
         if (null !== $this->qkeyManager->findByUsername($username)) {
-            throw new Exception("This username is already registered");
+            throw new KeyOptionsException("Username exists");
         }
 
         // checking if recipient hasn't already registered a key pair
         if (null !== $this->qkeyManager->findByRecipient($recipient)) {
-            throw new Exception("This email is already registered");
+            throw new KeyOptionsException("Recipient exists");
         }
 
         // dirname in tmp directory
@@ -142,7 +167,9 @@ class GenKeyCommand extends ContainerAwareCommand
             // generation failed, removing dir and logging
             exec("rm -rf {$this->gpg_home}/{$username}");
             LogUtil::write_error($this->log_file, $e);
-            return;
+
+            // exception
+            throw new KeyGenerationException("Key generation failed");
         }
 
         // removing batch file and directory
@@ -155,7 +182,7 @@ class GenKeyCommand extends ContainerAwareCommand
             ->setEnv("GNUPGHOME", $userdir)
             ->setArguments(array(
                 "--import",
-                "{$userdir}/{$username}.pub"
+                "{$userdir}/{$username}.pubm"
             ))
         ;
 
@@ -164,7 +191,9 @@ class GenKeyCommand extends ContainerAwareCommand
             // import failed, removing dir and logging
             exec("rm -rf {$userdir}/{$qkey->getUsername()}");
             LogUtil::write_error($this->log_file, $e);
-            return;
+
+            // exception
+            throw new KeyImportException("Public key import failed");
         }
 
         // building the command to import private key
@@ -180,7 +209,9 @@ class GenKeyCommand extends ContainerAwareCommand
             // import failed, removing dir and logging
             exec("rm -rf {$userdir}/{$qkey->getUsername()}");
             LogUtil::write_error($this->log_file, $e);
-            return;
+
+            // exception
+            throw new KeyImportException("Private key import failed");
         }
 
         // persisting the key to the datgabase
