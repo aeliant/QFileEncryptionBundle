@@ -3,6 +3,7 @@ namespace Querdos\QFileEncryptionBundle\Command;
 
 use Querdos\QFileEncryptionBundle\Entity\QKey;
 use Querdos\QFileEncryptionBundle\Manager\QKeyManager;
+use Querdos\QFileEncryptionBundle\Util\LogUtil;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Console\Input\InputInterface;
@@ -30,6 +31,11 @@ class GenKeyCommand extends ContainerAwareCommand
     private $gpg_home;
 
     /**
+     * @var string
+     */
+    private $log_file;
+
+    /**
      * @var QKeyManager
      */
     private $qkeyManager;
@@ -41,6 +47,12 @@ class GenKeyCommand extends ContainerAwareCommand
     {
         $this->gpg_home    = $this->getContainer()->getParameter('q_file_encryption.gnupg_home');
         $this->qkeyManager = $this->getContainer()->get('qfe.manager.qkey');
+
+        $this->log_file = sprintf(
+            "%s/../%s",
+            $this->getContainer()->get('kernel')->getRootDir(),
+            $this->getContainer()->getParameter('q_file_encryption.logs_dir')
+        );
     }
 
     /**
@@ -127,7 +139,10 @@ class GenKeyCommand extends ContainerAwareCommand
 
         // trying to generate
         try {$builder->getProcess()->mustRun(); } catch (ProcessFailedException $e) {
-            dump($e->getMessage());die;
+            // generation failed, removing dir and logging
+            exec("rm -rf {$this->gpg_home}/{$username}");
+            LogUtil::write_error($this->log_file, $e);
+            return;
         }
 
         // removing batch file and directory
@@ -146,7 +161,10 @@ class GenKeyCommand extends ContainerAwareCommand
 
         // trying to run the import
         try {$builder->getProcess()->mustRun(); } catch (ProcessFailedException $e) {
-            dump($e->getMessage());die;
+            // import failed, removing dir and logging
+            exec("rm -rf {$userdir}/{$qkey->getUsername()}");
+            LogUtil::write_error($this->log_file, $e);
+            return;
         }
 
         // building the command to import private key
@@ -159,7 +177,10 @@ class GenKeyCommand extends ContainerAwareCommand
 
         // trying to run the command
         try {$builder->getProcess()->mustRun(); } catch (ProcessFailedException $e) {
-            dump($e->getMessage());die;
+            // import failed, removing dir and logging
+            exec("rm -rf {$userdir}/{$qkey->getUsername()}");
+            LogUtil::write_error($this->log_file, $e);
+            return;
         }
 
         // persisting the key to the datgabase
