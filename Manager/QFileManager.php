@@ -1,6 +1,8 @@
 <?php
 namespace Querdos\QFileEncryptionBundle\Manager;
 
+use Querdos\QFileEncryptionBundle\Entity\QFile;
+
 /**
  * Class QFileManager
  * @package Querdos\QFileEncryptionBundle\Manager
@@ -13,7 +15,7 @@ class QFileManager extends BaseManager
      *
      * @param $filename
      *
-     * @return mixed
+     * @return QFile
      */
     public function readByUniqueFileName($filename)
     {
