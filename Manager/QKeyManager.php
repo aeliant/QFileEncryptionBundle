@@ -1,6 +1,8 @@
 <?php
 namespace Querdos\QFileEncryptionBundle\Manager;
 
+use Querdos\QFileEncryptionBundle\Entity\QKey;
+
 /**
  * Class QKeyManager
  * @package Querdos\QFileEncryptionBundle\Manager
@@ -13,10 +15,22 @@ class QKeyManager extends BaseManager
      *
      * @param string $username
      *
-     * @return QKeyManager
+     * @return QKey
      */
     public function findByUsername($username)
     {
         return $this->repository->findOneByUsername($username);
+    }
+
+    /**
+     * Find a key pair with the given email
+     *
+     * @param string $recipient
+     *
+     * @return QKey
+     */
+    public function findByRecipient($recipient)
+    {
+        return $this->repository->findOneByRecipient($recipient);
     }
 }
