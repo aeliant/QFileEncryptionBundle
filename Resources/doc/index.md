@@ -52,15 +52,27 @@ Step 4: Configuration
 For now, only one engine is supported:  
   * [ORM](http://www.doctrine-project.org/projects/orm.html)
 
-More support will come as soon as possible. You have one more thing to configure in the main config.yml file:
+More support will come as soon as possible.  
+You can noww configure your configuration file ans specify these following options:
 
     # app/config/config.yml
+    {...}
     q_file_encryption:
         # Default GPG directory (default: ~/.gnupg)
         gnupg_home: /path/to/.gnupg
 
-This directory will be used to store key pairs for each users and use them later to encrypt/decrypt files for the given 
-user.
+The `gnupg_home` directory will be used to store key pairs for each users and use them later to encrypt/decrypt files for the given user.
+
+Finally, make sure that your application has at least validations enabled (you can add annotation validation if you want)
+
+    # app/config/config.yml
+    {...}
+    framework:
+        validation:    { enabled: true }
+        # to enable validation with annotation:
+        # validation:   { enabled: true, enable_annotations: true }
+
+    
 
 Step 5: Usage
 -------------
