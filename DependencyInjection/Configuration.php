@@ -32,6 +32,10 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('enc_dir')
             ->defaultValue('enc_documents')
             ->end()
+
+            ->scalarNode('logs_dir')
+            ->defaultValue('var/logs/qfe.log')
+            ->end()
         ;
 
         return $treeBuilder;
