@@ -102,6 +102,7 @@ class EncryptFileCommandTest extends WebTestCase
 
         // checking that the file hasn't been deleted
         $this->assertTrue(file_exists("/tmp/{$tmp_filename}"));
+        unlink("/tmp/{$tmp_filename}"); // need to unlink it for decryption test
     }
 
     public static function lorem_text()
