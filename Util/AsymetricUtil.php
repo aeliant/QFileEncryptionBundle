@@ -53,7 +53,6 @@ class AsymetricUtil
         ));
 
         // Creating output
-        // TODO: handle errors
         $output = new NullOutput();
 
         // running the key generation
@@ -68,21 +67,6 @@ class AsymetricUtil
      */
     public function encrypt_file($filePath, QKey $qkey)
     {
-        // checking file path
-        if (null === $filePath || !file_exists($filePath)) {
-            throw new Exception("No valid file specified (value = {$filePath})");
-        }
-
-        // checking user has a key pair
-        if (null === $this->qkeyManager->findByUsername($qkey->getUsername())) {
-            throw new Exception("No key pair associated with {$qkey->getUsername()}");
-        }
-
-        // checking recipient
-        if (null === $qkey->getRecipient()) {
-            throw new Exception("No recipient specified");
-        }
-
         // creating application with kernel
         $application = new Application($this->kernel);
         $application->setAutoExit(false);
@@ -96,7 +80,6 @@ class AsymetricUtil
         ));
 
         // creating null output
-        // TODO: Handle error
         $output = new NullOutput();
 
         // running application
@@ -132,8 +115,8 @@ class AsymetricUtil
             'file'          => "{$qfile->getPath()}/{$qfile->getFilename()}.enc",
         ));
 
-        // TODO: handle error
         $output = new NullOutput();
+
         $application->run($input, $output);
 
         // creating the response
