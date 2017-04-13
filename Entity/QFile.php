@@ -32,17 +32,24 @@ class QFile
     private $path;
 
     /**
+     * @var QKey
+     */
+    private $qkey;
+
+    /**
      * QFile constructor.
      *
      * @param string $original_name
      * @param string $filename
      * @param string $path
+     * @param QKey   $qkey
      */
-    public function __construct($original_name = null, $filename = null, $path = null)
+    public function __construct($original_name = null, $filename = null, $path = null, QKey $qkey = null)
     {
         $this->original_name = $original_name;
         $this->filename      = $filename;
         $this->path          = $path;
+        $this->qkey          = $qkey;
     }
 
     /**
@@ -118,6 +125,25 @@ class QFile
     public function setPath($path)
     {
         $this->path = $path;
+        return $this;
+    }
+
+    /**
+     * @return QKey
+     */
+    public function getQkey()
+    {
+        return $this->qkey;
+    }
+
+    /**
+     * @param QKey $qkey
+     *
+     * @return QFile
+     */
+    public function setQkey($qkey)
+    {
+        $this->qkey = $qkey;
         return $this;
     }
 }
