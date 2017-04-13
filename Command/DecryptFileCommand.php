@@ -74,8 +74,8 @@ class DecryptFileCommand extends ContainerAwareCommand
             ->addArgument("file", InputArgument::REQUIRED)
 
             ->addOption("username", "u", InputOption::VALUE_REQUIRED)
-            ->addOption("recipient", "r", InputOption::VALUE_REQUIRED)
             ->addOption("passphrase", "p", InputOption::VALUE_REQUIRED)
+            ->addOption("output", "o", InputOption::VALUE_OPTIONAL, null, "/tmp");
         ;
     }
 
@@ -87,8 +87,22 @@ class DecryptFileCommand extends ContainerAwareCommand
         // retrieving data from input
         $file       = $input->getArgument('file');
         $username   = $input->getOption('username');
-        $recipient  = $input->getOption('recipient');
         $passphrase = $input->getOption('passphrase');
+        $output     = $input->getOption('output');
+
+        $qkey      = $this->qkeyManager->findByUsername($username);
+        // checking that a key exists
+        if (null === $qkey) {
+            throw new KeyOptionsException("No associated key found for `$username`");
+        }
+
+        // checking passphrase
+        if (!password_verify($passphrase,$qkey->getPassphrase())) {
+            throw new KeyOptionsException("Invalid passphrase for `$username`");
+        }
+
+        // retrieving the recipient
+        $recipient = $qkey->getRecipient();
 
         // checking that file exists
         if (!file_exists($file)) {
@@ -122,22 +136,30 @@ class DecryptFileCommand extends ContainerAwareCommand
         }
 
         // building the command
+        $outputFile = "{$output}/{$qfile->getOriginalName()}";
+        $arguments = array(
+            '--trust-model', 'always',
+
+            '--decrypt',
+            '--recipient', $recipient,
+            '--passphrase', $passphrase,
+            '--output', $outputFile,
+            $file
+        );
+
+        // checking if the script is launched from the CLI
+        if (php_sapi_name() !== 'cli') {
+            array_unshift($arguments, '--no-tty');
+        }
+
+        // creating the command
         $builder = new ProcessBuilder();
         $builder
             ->setPrefix("/usr/bin/gpg")
             ->addEnvironmentVariables(array(
                 "GNUPGHOME" => "{$this->gpgHome}/{$username}"
             ))
-            ->setArguments(array(
-                '--no-tty',
-                '--trust-model', 'always',
-
-                '--decrypt',
-                '--recipient', $recipient,
-                '--passphrase', $passphrase,
-                '--output', '/tmp/' . $qfile->getOriginalName(),
-                $file
-            ))
+            ->setArguments($arguments)
         ;
 
         // trying to decrypt
