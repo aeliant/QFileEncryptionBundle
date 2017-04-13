@@ -8,4 +8,4 @@ services:
     q_fe.util.log:
         class: Querdos\QFileEncryptionBundle\Util\LogUtil
         calls:
-            - [ setLogDir,          [ '@kernel', '%q_file_encryption.logs_dir%' ]]
+            - [ setLogError,         [ '@kernel', '%q_file_encryption.logs_dir%' ]]

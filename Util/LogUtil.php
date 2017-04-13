@@ -20,7 +20,7 @@ class LogUtil
     /**
      * @var string
      */
-    private $log_file;
+    private $log_file_error;
 
     /**
      * Write an error log into the error file
@@ -30,7 +30,7 @@ class LogUtil
     public function write_error(\Exception $exception)
     {
         // opening file in write mode
-        $stream = fopen($this->log_file, 'a');
+        $stream = fopen($this->log_file_error, 'a');
 
         // logging
         fwrite($stream, "-----------------------------------\n");
@@ -46,7 +46,7 @@ class LogUtil
      * @param Kernel $kernel
      * @param string $log_dir
      */
-    public function setLogDir($kernel, $log_dir)
+    public function setLogError($kernel, $log_dir)
     {
         // checking log dir value
         if (null === $log_dir) {
@@ -54,6 +54,6 @@ class LogUtil
         }
 
         // setting log file
-        $this->log_file = $kernel->getRootDir() . '/../' . $log_dir;
+        $this->log_file_error = $kernel->getRootDir() . '/../' . $log_dir . self::LOG_FILE_ERROR;
     }
 }

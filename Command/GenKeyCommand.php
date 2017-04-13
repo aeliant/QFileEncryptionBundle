@@ -173,7 +173,7 @@ class GenKeyCommand extends ContainerAwareCommand
             ->setEnv("GNUPGHOME", $userdir)
             ->setArguments(array(
                 "--import",
-                "{$userdir}/{$username}.pubm"
+                "{$userdir}/{$username}.pub"
             ))
         ;
 
