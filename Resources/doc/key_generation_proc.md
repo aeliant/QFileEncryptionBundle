@@ -3,7 +3,7 @@ Author: Hamza ESSAYEGH <querdos>
 ## Using the console
 If you want to generate a key pair manually in the console, a command is available:  
 ```bash
-$ bin/console qfe:gen-key [options]
+bin/console qfe:gen-key [options]
 ```
 
 There are three mandatory options :
@@ -13,7 +13,7 @@ There are three mandatory options :
  
 Example:  
 ```bash
-$ bin/console qfe:gen-key -u querdos -r querdos@gmail.com -p dumbPassphrase
+bin/console qfe:gen-key -u querdos -r querdos@gmail.com -p dumbPassphrase
 ```
 
 Suposing you haven't changed the default `gnupg_home`, it will create a directory `username` and store the generated key
@@ -69,13 +69,3 @@ Suppose you have a form that submit the generation demand:
         }
     }
 ``` 
-## Exceptions
-If you want to handle efficiently exception for your application, there are the main exceptions that can be thrown 
-with the key pair generation:
-  * `KeyOptionException` is thrown when a specified option don't pass the tests for GnuPG. For example a malformed 
-  recipient, no username specified, etc...
-  * `KeyGenerationException` is thrown when the key generation has failed for other problem than the specified options.
-  To know why the generation has failed, you can refer to the generated `qfe_error.log` in the logs folder (specified in 
-  the `config.yml` file in the installation procedure)
-  * `KeyImportExcemtion` is thrown when the trust database creation has failed (when trying to import the public and private
-  key). Again, for more details about the error, please refer to your `qfe_error.log` file.
