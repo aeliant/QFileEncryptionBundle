@@ -1,8 +1,10 @@
 <?php
 namespace Querdos\QFileEncryptionBundle\Util;
 
+use Psr\Log\InvalidArgumentException;
 use Querdos\QFileEncryptionBundle\Entity\QFile;
 use Querdos\QFileEncryptionBundle\Entity\QKey;
+use Querdos\QFileEncryptionBundle\Exception\KeyOptionsException;
 use Querdos\QFileEncryptionBundle\Manager\QKeyManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Config\Definition\Exception\Exception;
@@ -38,19 +40,33 @@ class AsymetricUtil
      * @param string        $passphrase
      * @param UserInterface $user
      */
-    public function generate_key($recipient, $passphrase, UserInterface $user)
+    public function generate_key(UserInterface $user, $passphrase, $recipient = null)
     {
         // creating application with current kernel
         $application = new Application($this->kernel);
         $application->setAutoExit(false);
 
         // creating input
-        $input = new ArrayInput(array(
-            'command'       => 'qfe:gen-key',
-            '--username'    => $user->getUsername(),
-            '--recipient'   => $recipient,
-            '--passphrase'  => $passphrase
-        ));
+        $input = array(
+            'command'      => 'qfe:gen-key',
+            '--username'   => $user->getUsername(),
+            '--passphrase' => $passphrase
+        );
+
+        // checking recipient. if recipient not null, it has a priority over the user interface email field (if exists)
+        if (null !== $recipient) {
+            $input['--recipient'] = $recipient;
+        } else { // here, recipient is null
+            // checking if the user interface has an email field
+            if (method_exists($user, 'getEmail')) {
+                $input['--recipient'] = $user->getEmail();
+            } else {
+                throw new KeyOptionsException("No recipient specified for the key generation");
+            }
+        }
+
+        // creating the array input
+        $input = new ArrayInput($input);
 
         // Creating output
         $output = new NullOutput();
