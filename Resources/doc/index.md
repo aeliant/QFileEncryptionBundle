@@ -1,7 +1,7 @@
 # Installation
 
 The installation is quite easy, just don't forget mandatory parameters
-  * [Installation procedure](installation.md)
+  * [Installation procedure](installation_proc.md)
  
 # Usage
 
