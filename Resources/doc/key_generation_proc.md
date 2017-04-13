@@ -1,5 +1,5 @@
 # Key Generation Procedure
-Author: 
+Author: Hamza ESSAYEGH <querdos>
 ## Using the console
 If you want to generate a key pair manually in the console, a command is available:  
 ```bash
