@@ -1,4 +1,4 @@
-# Exceptions description
+# Exceptions description
 If you want to handle efficiently exception for your application, there are the main exceptions that can be thrown 
 with the key pair generation.
 
