@@ -112,11 +112,6 @@ class AsymetricUtil
      */
     public function decrypt_file(QFile $qfile, QKey $qkey, $passphrase)
     {
-        // checking passphrase
-        if (!password_verify($passphrase, $qkey->getPassphrase())) {
-            throw new Exception("Invalid passphrase");
-        }
-
         // creating application with current kernel
         $application = new Application($this->kernel);
         $application->setAutoExit(false);
