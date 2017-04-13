@@ -7,6 +7,7 @@ use Querdos\QFileEncryptionBundle\Entity\QKey;
 use Querdos\QFileEncryptionBundle\Exception\EncryptionException;
 use Querdos\QFileEncryptionBundle\Exception\KeyOptionsException;
 use Querdos\QFileEncryptionBundle\Manager\QFileManager;
+use Querdos\QFileEncryptionBundle\Manager\QKeyManager;
 use Querdos\QFileEncryptionBundle\Util\LogUtil;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -31,6 +32,11 @@ class EncryptFileCommand extends ContainerAwareCommand
     private $qfileManager;
 
     /**
+     * @var QKeyManager
+     */
+    private $qkeyManager;
+
+    /**
      * @var string
      */
     private $gnupg_home;
@@ -46,6 +52,7 @@ class EncryptFileCommand extends ContainerAwareCommand
     public function initialize(InputInterface $input, OutputInterface $output)
     {
         $this->qfileManager = $this->getContainer()->get('qfe.manager.qfile');
+        $this->qkeyManager  = $this->getContainer()->get('qfe.manager.qkey');
         $this->gnupg_home   = $this->getContainer()->getParameter('q_file_encryption.gnupg_home');
         $this->logUtil      = $this->getContainer()->get('q_fe.util.log');
 
@@ -66,7 +73,6 @@ class EncryptFileCommand extends ContainerAwareCommand
             ->addArgument("file", InputArgument::REQUIRED)
 
             ->addOption("username", "u", InputOption::VALUE_REQUIRED)
-            ->addOption("recipient", "r", InputOption::VALUE_REQUIRED)
             ->addOption('keep-original', 'k', InputOption::VALUE_NONE)
         ;
     }
@@ -79,8 +85,11 @@ class EncryptFileCommand extends ContainerAwareCommand
         // params
         $file        = $input->getArgument('file');
         $username    = $input->getOption('username');
-        $recipient   = $input->getOption('recipient');
         $delOriginal = !$input->getOption('keep-original');
+
+        // retrieving the corresponding qkey
+        $qkey      = $this->qkeyManager->findByUsername($username);
+        $recipient = $qkey->getRecipient();
 
         // checking that the file exists
         if (!file_exists($file)) {
@@ -150,7 +159,8 @@ class EncryptFileCommand extends ContainerAwareCommand
         $this->qfileManager->create(new QFile(
             $filename,
             $newFileName,
-            $uploads_dir
+            $uploads_dir,
+            $qkey
         ));
     }
 }

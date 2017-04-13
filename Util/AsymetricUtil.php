@@ -91,7 +91,6 @@ class AsymetricUtil
         $input = new ArrayInput(array(
             'command' => 'qfe:encrypt',
             '--username' => $qkey->getUsername(),
-            '--recipient' => $qkey->getRecipient(),
             'file' => $filePath
         ));
 
