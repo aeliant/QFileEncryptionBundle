@@ -33,7 +33,7 @@ pair in it. Then it will create a local trust database by importing the public a
 Finally, the command will persist these informations in database with the `QKey` entity composed as followed:
   * The username value for the key pair
   * The recipient value for the key pair
-  * The passphrase hashed (using `BCRYPT`) value for the key pair
+  * The passphrase (in plain, will be hashed using `BCRYPT`) value for the key pair
   
 ## Using a controller
 
