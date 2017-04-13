@@ -25,4 +25,10 @@ Querdos\QFileEncryptionBundle\Entity\QFile:
             unique:       false
             nullable:     false
 
+    manyToOne:
+        qkey:
+            targetEntity: Querdos\QFileEncryptionBundle\Entity\QKey
+            joinColumn:
+                nullable: false
+
     lifecycleCallbacks: {}
