@@ -39,9 +39,9 @@ class GenKeyCommand extends ContainerAwareCommand
     private $gpg_home;
 
     /**
-     * @var string
+     * @var LogUtil
      */
-    private $log_file;
+    private $logUtil;
 
     /**
      * @var QKeyManager
@@ -55,19 +55,7 @@ class GenKeyCommand extends ContainerAwareCommand
     {
         $this->gpg_home    = $this->getContainer()->getParameter('q_file_encryption.gnupg_home');
         $this->qkeyManager = $this->getContainer()->get('qfe.manager.qkey');
-
-        // retrieving the log dir in main configuration file
-        $log_dir = $this->getContainer()->getParameter('q_file_encryption.logs_dir');
-        if (null === $log_dir) {
-            throw new InvalidConfigurationException("Incorrect value for the log file parameter");
-        }
-
-        // setting the log file
-        $this->log_file = sprintf(
-            "%s/../%s/qfe.log",
-            $this->getContainer()->get('kernel')->getRootDir(),
-            $log_dir
-        );
+        $this->logUtil     = $this->getContainer()->get('q_fe.util.log');
 
         // checking gnupg_home
         if (null === $this->gpg_home) {
@@ -169,7 +157,7 @@ class GenKeyCommand extends ContainerAwareCommand
         try {$builder->getProcess()->mustRun(); } catch (ProcessFailedException $e) {
             // generation failed, removing dir and logging
             exec("rm -rf {$this->gpg_home}/{$username}");
-            LogUtil::write_error($this->log_file, $e);
+            $this->logUtil->write_error($e);
 
             // exception
             throw new KeyGenerationException("Key generation failed");
@@ -193,7 +181,7 @@ class GenKeyCommand extends ContainerAwareCommand
         try {$builder->getProcess()->mustRun(); } catch (ProcessFailedException $e) {
             // import failed, removing dir and logging
             exec("rm -rf {$userdir}/{$qkey->getUsername()}");
-            LogUtil::write_error($this->log_file, $e);
+            $this->logUtil->write_error($e);
 
             // exception
             throw new KeyImportException("Public key import failed");
@@ -211,7 +199,7 @@ class GenKeyCommand extends ContainerAwareCommand
         try {$builder->getProcess()->mustRun(); } catch (ProcessFailedException $e) {
             // import failed, removing dir and logging
             exec("rm -rf {$userdir}/{$qkey->getUsername()}");
-            LogUtil::write_error($this->log_file, $e);
+            $this->logUtil->write_error($e);
 
             // exception
             throw new KeyImportException("Private key import failed");

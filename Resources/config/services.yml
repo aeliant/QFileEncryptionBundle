@@ -4,3 +4,8 @@ services:
         calls:
             - [ setKernel,          [ '@kernel' ]]
             - [ setQKeyManager,     [ '@qfe.manager.qkey']]
+
+    q_fe.util.log:
+        class: Querdos\QFileEncryptionBundle\Util\LogUtil
+        calls:
+            - [ setLogDir,          [ '@kernel', '%q_file_encryption.logs_dir%' ]]

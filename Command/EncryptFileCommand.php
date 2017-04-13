@@ -36,9 +36,9 @@ class EncryptFileCommand extends ContainerAwareCommand
     private $gnupg_home;
 
     /**
-     * @var string
+     * @var LogUtil
      */
-    private $log_file;
+    private $logUtil;
 
     /**
      * {@inheritdoc}
@@ -47,19 +47,7 @@ class EncryptFileCommand extends ContainerAwareCommand
     {
         $this->qfileManager = $this->getContainer()->get('qfe.manager.qfile');
         $this->gnupg_home   = $this->getContainer()->getParameter('q_file_encryption.gnupg_home');
-
-        // retrieving log dir in main configuration file
-        $log_dir = $this->getContainer()->getParameter('q_file_encryption.logs_dir');
-        if (null === $log_dir) {
-            throw new InvalidConfigurationException("Incorrect value for the log file path");
-        }
-
-        // setting the log file
-        $this->log_file = sprintf(
-            "%s/../%s/qfe.log",
-            $this->getContainer()->get('kernel')->getRootDir(),
-            $log_dir
-        );
+        $this->logUtil      = $this->getContainer()->get('q_fe.util.log');
 
         // checking gnupg_home
         if (null === $this->gnupg_home) {
@@ -147,9 +135,9 @@ class EncryptFileCommand extends ContainerAwareCommand
         }
 
         // trying to run the command
-        try { $builder->getProcess()->mustRun(); } catch (ProcessFailedException $exception) {
+        try { $builder->getProcess()->mustRun(); } catch (ProcessFailedException $e) {
             // logging
-            LogUtil::write_error($this->log_file, $exception);
+            $this->logUtil->write_error($e);
 
             // exception
             throw new EncryptionException("Encryption error, see log file");
