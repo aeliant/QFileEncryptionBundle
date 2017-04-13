@@ -68,8 +68,6 @@ class EncryptFileCommand extends ContainerAwareCommand
             ->addOption("username", "u", InputOption::VALUE_REQUIRED)
             ->addOption("recipient", "r", InputOption::VALUE_REQUIRED)
             ->addOption('delete-original', 'd', InputOption::VALUE_REQUIRED, null, true)
-
-            ->setHidden(true)
         ;
     }
 

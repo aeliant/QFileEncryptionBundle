@@ -74,8 +74,6 @@ class GenKeyCommand extends ContainerAwareCommand
             ->addOption("username", "u", InputOption::VALUE_REQUIRED)
             ->addOption("recipient", "r", InputOption::VALUE_REQUIRED)
             ->addOption("passphrase", "p", InputOption::VALUE_REQUIRED)
-
-            ->setHidden(true)
         ;
     }
 
