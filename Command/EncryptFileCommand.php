@@ -67,7 +67,7 @@ class EncryptFileCommand extends ContainerAwareCommand
 
             ->addOption("username", "u", InputOption::VALUE_REQUIRED)
             ->addOption("recipient", "r", InputOption::VALUE_REQUIRED)
-            ->addOption('delete-original', 'd', InputOption::VALUE_REQUIRED, null, true)
+            ->addOption('keep-original', 'k', InputOption::VALUE_NONE)
         ;
     }
 
@@ -80,7 +80,7 @@ class EncryptFileCommand extends ContainerAwareCommand
         $file        = $input->getArgument('file');
         $username    = $input->getOption('username');
         $recipient   = $input->getOption('recipient');
-        $delOriginal = $input->getOption('delete-original');
+        $delOriginal = !$input->getOption('keep-original');
 
         // checking that the file exists
         if (!file_exists($file)) {
