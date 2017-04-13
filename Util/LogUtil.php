@@ -43,10 +43,11 @@ class LogUtil
     }
 
     /**
-     * @param Kernel $kernel
      * @param string $log_dir
+     *
+     * @internal param Kernel $kernel
      */
-    public function setLogError($kernel, $log_dir)
+    public function setLogError($log_dir)
     {
         // checking log dir value
         if (null === $log_dir) {
@@ -54,6 +55,6 @@ class LogUtil
         }
 
         // setting log file
-        $this->log_file_error = $kernel->getRootDir() . '/../' . $log_dir . self::LOG_FILE_ERROR;
+        $this->log_file_error = $log_dir . '/' . self::LOG_FILE_ERROR;
     }
 }
