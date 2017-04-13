@@ -69,19 +69,23 @@ class QFileEncryptionExtension extends Extension
         $user  = exec('whoami');
 
         // building replacement pattern
-        $rep_1 = sprintf('/home/%s${1}', $user);
-        $rep_2 = sprintf('%s/../${1}', $rootDir);
+        $rep_1     = sprintf('/home/%s${1}', $user);
+        $rep_slash = '${1}'; // used to remove the / character at the end (eventually)
+        $rep_2     = sprintf('%s/../${1}', $rootDir);
 
         // building regex pattern
-        $pat_1 = '/^\~(.*)/';
-        $pat_2 = '/(^[A-Za-z].*)/';
+        $pat_1     = '/^\~(.*)\/{0,1}/';
+        $pat_slash = '/(.*)\/$/';
+        $pat_2     = '/(^[A-Za-z].*)/';
 
-        $formatted = preg_replace($pat_1, $rep_1, $path);
+        $formatted = preg_replace($pat_slash, $rep_slash, $path);
+
+        $formatted = preg_replace($pat_1, $rep_1, $formatted);
         if ($formatted !== $path) return $formatted;
 
-        $formatted = preg_replace($pat_2, $rep_2, $path);
+        $formatted = preg_replace($pat_2, $rep_2, $formatted);
         if ($formatted !== $path) return $formatted;
 
-        return $path;
+        return $formatted;
     }
 }
