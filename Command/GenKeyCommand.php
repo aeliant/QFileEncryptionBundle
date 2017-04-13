@@ -56,19 +56,22 @@ class GenKeyCommand extends ContainerAwareCommand
         $this->gpg_home    = $this->getContainer()->getParameter('q_file_encryption.gnupg_home');
         $this->qkeyManager = $this->getContainer()->get('qfe.manager.qkey');
 
+        // retrieving the log dir in main configuration file
+        $log_dir = $this->getContainer()->getParameter('q_file_encryption.logs_dir');
+        if (null === $log_dir) {
+            throw new InvalidConfigurationException("Incorrect value for the log file parameter");
+        }
+
+        // setting the log file
         $this->log_file = sprintf(
-            "%s/../%s",
+            "%s/../%s/qfe.log",
             $this->getContainer()->get('kernel')->getRootDir(),
-            $this->getContainer()->getParameter('q_file_encryption.logs_dir')
+            $log_dir
         );
 
         // checking gnupg_home
         if (null === $this->gpg_home) {
             throw new InvalidConfigurationException("Incorrect value for the GNUPG_HOME parameter");
-        }
-
-        if (null === $this->log_file) {
-            throw new InvalidConfigurationException("Incorrect value for the log file parameter");
         }
     }
 

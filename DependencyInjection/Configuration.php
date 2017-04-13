@@ -26,7 +26,7 @@ class Configuration implements ConfigurationInterface
             ->children()
 
             ->scalarNode('gnupg_home')
-            ->defaultNull()
+            ->defaultValue("~/.gnupg")
             ->end()
 
             ->scalarNode('enc_dir')
@@ -34,7 +34,7 @@ class Configuration implements ConfigurationInterface
             ->end()
 
             ->scalarNode('logs_dir')
-            ->defaultValue('var/logs/qfe.log')
+            ->defaultValue('var/logs/')
             ->end()
         ;
 

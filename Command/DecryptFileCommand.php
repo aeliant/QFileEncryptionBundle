@@ -55,22 +55,23 @@ class DecryptFileCommand extends ContainerAwareCommand
         $this->qkeyManager  = $this->getContainer()->get('qfe.manager.qkey');
         $this->gpgHome      = $this->getContainer()->getParameter('q_file_encryption.gnupg_home');
 
+        // retrieving log dir in main configuration file
+        $log_dir = $this->getContainer()->getParameter('q_file_encryption.logs_dir');
+        if (null === $log_dir) {
+            throw new InvalidConfigurationException("Incorrect value for the log file path");
+        }
+
+        // setting the log file
         $this->log_file = sprintf(
-            "%s/../%s",
+            "%s/../%s/qfe.log",
             $this->getContainer()->get('kernel')->getRootDir(),
-            $this->getContainer()->getParameter('q_file_encryption.logs_dir')
+            $log_dir
         );
 
         // checking gnupg home
         if (null === $this->gpgHome) {
             throw new InvalidConfigurationException("Incorrect value for GnuPG home directory");
         }
-
-        // checking log file
-        if (null === $this->log_file) {
-            throw new InvalidConfigurationException("Incorrect value for the log file path");
-        }
-
     }
 
     /**
