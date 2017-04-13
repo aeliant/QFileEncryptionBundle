@@ -9,4 +9,4 @@ There are three main parts to handle in order to correctly manage file encryptio
   * [Key generation procedure](key_generation_proc.md)
   * [Encryption procedure](encryption_proc.md)
   * [Decryption procedure](decryption_proc.md)
-  
+  * [Exceptions description](exception_desc.md)
