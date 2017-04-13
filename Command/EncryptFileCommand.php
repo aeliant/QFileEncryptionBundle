@@ -118,7 +118,6 @@ class EncryptFileCommand extends ContainerAwareCommand
 
         // upload directory
         $enc_dir     = $this->getContainer()->getParameter('q_file_encryption.enc_dir');
-        $uploads_dir = $this->getContainer()->get('kernel')->getRootDir() . '/../web/' . $enc_dir;
         $newFileName = uniqid((new \DateTime())->format('mdY'));
 
         // building the command
@@ -131,14 +130,14 @@ class EncryptFileCommand extends ContainerAwareCommand
 
                 '--encrypt',
                 '--recipient', $recipient,
-                '--output', "{$uploads_dir}/{$newFileName}.enc",
+                '--output', "{$enc_dir}/{$newFileName}.enc",
                 $file
             ))
         ;
 
         // checking if upload dir exists and create it if not
-        if (!is_dir($uploads_dir)) {
-            mkdir($uploads_dir);
+        if (!is_dir($enc_dir)) {
+            mkdir($enc_dir);
         }
 
         // trying to run the command
@@ -159,7 +158,7 @@ class EncryptFileCommand extends ContainerAwareCommand
         $this->qfileManager->create(new QFile(
             $filename,
             $newFileName,
-            $uploads_dir,
+            $enc_dir,
             $qkey
         ));
     }
