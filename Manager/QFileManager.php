@@ -21,4 +21,15 @@ class QFileManager extends BaseManager
     {
         return $this->repository->findOneByFilename($filename);
     }
+
+    /**
+     * Return all QFile associated for the given username
+     *
+     * @param string $username
+     * @return QFile[]
+     */
+    public function readAllForUsername($username)
+    {
+        return $this->repository->allForUsername($username);
+    }
 }
