@@ -17,11 +17,8 @@
   "require": {
   },
   "autoload": {
-    "psr-0": {
-      "Querdos\\QFileEncryptionBundle": ""
-    }
+    "psr-4": { "Querdos\\QPassDbBundle\\": "" }
   },
-  "target-dir": "qfile-encryption-bundle",
   "repositories": [
     {
     }
