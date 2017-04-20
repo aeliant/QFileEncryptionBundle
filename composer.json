@@ -21,7 +21,7 @@
       "Querdos\\QFileEncryptionBundle": ""
     }
   },
-  "target-dir": "Querdos/QFileEncryptionBundle",
+  "target-dir": "qfile-encryption-bundle",
   "repositories": [
     {
     }
